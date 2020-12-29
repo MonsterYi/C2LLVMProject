@@ -150,10 +150,10 @@ def generate(input_filename, output_filename):
     stream = CommonTokenStream(lexer)
     parser = simpleCParser(stream)
     parser.removeErrorListeners()
-    errorListener = syntaxErrorListener()
-    parser.addErrorListener(errorListener)
+    #errorListener = syntaxErrorListener()
+    #parser.addErrorListener(errorListener)
 
     tree = parser.prog()
-    v = Visitor()
+    v = MyVisitor()
     v.visit(tree)
     v.save(output_filename)
