@@ -1,3 +1,5 @@
 *.pyc
 *.vscode
 src/test/makefile
+*.xml
+*.iml
