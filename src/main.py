@@ -5,8 +5,8 @@ class CodeGenerator:
     def __init__(self):
         pass
 
-    def generate(self, c_filename: str):
-        print("Input filename %s ..." % c_filename)
+    #def generate(self, c_filename: str):
+        #print("Input filename %s ..." % c_filename)
 
 
 if __name__ == "__main__":
@@ -15,4 +15,4 @@ if __name__ == "__main__":
     filename = sys.argv[1]
     generate(filename, filename.split(".")[0]+".ll")
     code_generator = CodeGenerator()
-    code_generator.generate(filename)
+    #code_generator.generate(filename)

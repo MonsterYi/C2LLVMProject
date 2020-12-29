@@ -102,6 +102,36 @@ class MyVisitor(simpleCVisitor):
         #self.SymbolTable.QuitScope()
         return
 
+    def visitParams(self, ctx:simpleCParser.ParamsContext):
+        '''
+        语法规则：params : param (','param)* |;
+        描述：函数的参数列表
+        返回：处理后的函数参数列表
+        '''
+        Length = ctx.getChildCount()
+        if (Length == 0):
+            return []
+        ParameterList = []
+        i = 0
+        while i < Length:
+            NewParameter = self.visit(ctx.getChild(i))
+            ParameterList.append(NewParameter)
+            i += 2
+        return ParameterList
+
+    def visitMType(self, ctx:simpleCParser.MTypeContext):
+        '''
+        语法规则：mType : 'int'| 'double'| 'char'| 'string';
+        描述：类型主函数
+        返回：无
+        '''
+        if ctx.getText() == 'int':
+            return int32
+        if ctx.getText() == 'char':
+            return int8
+        if ctx.getText() == 'double':
+            return double
+        return void
     
     def visitPrintfFunc(self, ctx:simpleCParser.PrintfFuncContext):
         '''
@@ -137,6 +167,16 @@ class MyVisitor(simpleCVisitor):
             ReturnVariableName = TheBuilder.call(printf, Arguments)
         Result = {'type': int32, 'name': ReturnVariableName}
         return Result
+
+
+    def save(self, filename):
+        """
+        保存到文件
+        描述：文件名含后缀
+        返回：无
+        """
+        with open(filename, "w") as f:
+            f.write(repr(self.module))
 
 
 def generate(input_filename, output_filename):
