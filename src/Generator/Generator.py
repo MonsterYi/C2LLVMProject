@@ -15,7 +15,7 @@ void = ir.VoidType()
 class MyVisitor(simpleCVisitor):
 
     def __init__(self):
-        super(simpleCVisitor, self).__init()
+        super(simpleCVisitor, self).__init__()
 
         #控制llvm生成
         self.module = ir.Module()
@@ -25,6 +25,7 @@ class MyVisitor(simpleCVisitor):
         self.block_list = []
         self.builder_list = []
         self.func_list = dict()
+        self.cur_func = ''
 
 
     def visitProg(self, ctx:simpleCParser.ProgContext):
@@ -44,64 +45,98 @@ class MyVisitor(simpleCVisitor):
         描述：函数的定义
         返回：无
         '''
-        #获取返回值类型
-        ReturnType = self.visit(ctx.getChild(0)) # mtype
-        
         #获取函数名 todo
-        FunctionName = ctx.getChild(1).getText() # func name
+        func_name = ctx.getChild(1).getText() # func name
         
         #获取参数列表
-        ParameterList = self.visit(ctx.getChild(3)) # func params
+        para_list = self.visit(ctx.getChild(3)) # func params
 
         #根据返回值，函数名称和参数生成llvm函数
         ParameterTypeList = []
-        for i in range(len(ParameterList)):
-            ParameterTypeList.append(ParameterList[i]['type'])
-        LLVMFunctionType = ir.FunctionType(ReturnType, ParameterTypeList)
-        LLVMFunction = ir.Function(self.Module, LLVMFunctionType, name = FunctionName)
+        for i in range(len(para_list)):
+            ParameterTypeList.append(para_list[i]['type'])
+        LLVMFunctionType = ir.FunctionType(self.visit(ctx.getChild(0)), ParameterTypeList)
+        LLVMFunction = ir.Function(self.module, LLVMFunctionType, name = func_name)
 
         #存储函数的变量        
-        for i in range(len(ParameterList)):
-            LLVMFunction.args[i].name = ParameterList[i]['IDname']
+        for i in range(len(para_list)):
+            LLVMFunction.args[i].name = para_list[i]['IDname']
 
         #存储函数的block
-        TheBlock = LLVMFunction.append_basic_block(name = FunctionName + '.entry')
+        TheBlock = LLVMFunction.append_basic_block(name = func_name + '.entry')
 
         #判断重定义，存储函数
-        if FunctionName in self.Functions:
-            raise SemanticError(ctx=ctx,msg="函数重定义错误！")
+        if func_name in self.func_list:
+            #raise SemanticError(ctx=ctx,msg="函数重定义错误！")
+            pass
         else:
-            self.Functions[FunctionName] = LLVMFunction
+            self.func_list[func_name] = LLVMFunction
 
         TheBuilder = ir.IRBuilder(TheBlock)
-        self.Blocks.append(TheBlock)
-        self.Builders.append(TheBuilder)
+        self.block_list.append(TheBlock)
+        self.builder_list.append(TheBuilder)
 
         #进一层
-        self.CurrentFunction = FunctionName
-        self.SymbolTable.EnterScope()
+        self.cur_func = func_name
+        #self.SymbolTable.EnterScope()
 
         #存储函数的变量
-        VariableList = {}
-        for i in range(len(ParameterList)):
-            NewVariable = TheBuilder.alloca(ParameterList[i]['type'])
+        for i in range(len(para_list)):
+            NewVariable = TheBuilder.alloca(para_list[i]['type'])
             TheBuilder.store(LLVMFunction.args[i], NewVariable)
             TheVariable = {}
-            TheVariable["Type"] = ParameterList[i]['type']
+            TheVariable["Type"] = para_list[i]['type']
             TheVariable["Name"] = NewVariable
-            TheResult = self.SymbolTable.AddItem(ParameterList[i]['IDname'], TheVariable)
+            TheResult = self.SymbolTable.AddItem(para_list[i]['IDname'], TheVariable)
             if TheResult["result"] != "success":
-                raise SemanticError(ctx=ctx,msg=TheResult["reason"])
+                #raise SemanticError(ctx=ctx,msg=TheResult["reason"])
+                pass
 
         #处理函数body
         self.visit(ctx.getChild(6)) # func body
 
         #处理完毕，退一层
-        self.CurrentFunction = ''
-        self.Blocks.pop()
-        self.Builders.pop()
-        self.SymbolTable.QuitScope()
+        self.cur_func = ''
+        self.block_list.pop()
+        self.builder_list.pop()
+        #self.SymbolTable.QuitScope()
         return
+
+    
+    def visitPrintfFunc(self, ctx:simpleCParser.PrintfFuncContext):
+        '''
+        语法规则：printfFunc : 'printf' '(' (mSTRING | mID) (','expr)* ')';
+        描述：printf函数
+        返回：函数返回值
+        '''        
+        if 'printf' in self.func_list:
+            printf = self.func_list['printf']
+        else:
+            printfType = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg = True)
+            printf = ir.Function(self.module, printfType, name = "printf")
+            self.func_list['printf'] = printf
+
+        TheBuilder = self.builder_list[-1]
+        zero = ir.Constant(int32, 0)
+
+        #就一个变量
+        if ctx.getChildCount() == 4:
+            ParameterInfo = self.visit(ctx.getChild(2)) 
+            Argument = TheBuilder.gep(ParameterInfo['name'], [zero, zero], inbounds = True)
+            ReturnVariableName = TheBuilder.call(printf, [Argument])
+        else:
+            ParameterInfo = self.visit(ctx.getChild(2))
+            Arguments = [TheBuilder.gep(ParameterInfo['name'], [zero, zero], inbounds = True)]
+
+            Length = ctx.getChildCount()
+            i = 4
+            while i < Length - 1:
+                OneParameter = self.visit(ctx.getChild(i))
+                Arguments.append(OneParameter['name'])
+                i += 2
+            ReturnVariableName = TheBuilder.call(printf, Arguments)
+        Result = {'type': int32, 'name': ReturnVariableName}
+        return Result
 
 
 def generate(input_filename, output_filename):
