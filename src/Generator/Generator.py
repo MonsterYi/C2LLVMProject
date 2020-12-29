@@ -102,6 +102,20 @@ class MyVisitor(simpleCVisitor):
         #self.SymbolTable.QuitScope()
         return
 
+    def visitMType(self, ctx:simpleCParser.MTypeContext):
+        '''
+        语法规则：mType : 'int'| 'double'| 'char'| 'string';
+        描述：类型主函数
+        返回：无
+        '''
+        if ctx.getText() == 'int':
+            return int32
+        if ctx.getText() == 'char':
+            return int8
+        if ctx.getText() == 'double':
+            return double
+        return void
+
     def visitParams(self, ctx:simpleCParser.ParamsContext):
         '''
         语法规则：params : param (','param)* |;
@@ -118,21 +132,41 @@ class MyVisitor(simpleCVisitor):
             ParameterList.append(NewParameter)
             i += 2
         return ParameterList
-
-    def visitMType(self, ctx:simpleCParser.MTypeContext):
+    
+    def visitFuncBody(self, ctx:simpleCParser.FuncBodyContext):
         '''
-        语法规则：mType : 'int'| 'double'| 'char'| 'string';
-        描述：类型主函数
+        语法规则：funcBody : body returnBlock;
+        描述：函数体
         返回：无
         '''
-        if ctx.getText() == 'int':
-            return int32
-        if ctx.getText() == 'char':
-            return int8
-        if ctx.getText() == 'double':
-            return double
-        return void
+        #self.SymbolTable.EnterScope()
+        for index in range(ctx.getChildCount()):
+            self.visit(ctx.getChild(index))
+        #self.SymbolTable.QuitScope()
+        return
+
+    def visitBody(self, ctx:simpleCParser.BodyContext):
+        '''
+        语法规则：body : (block | func';')*;
+        描述：语句块/函数块
+        返回：无
+        '''
+        for i in range(ctx.getChildCount()):
+            self.visit(ctx.getChild(i))
+            if self.block_list[-1].is_terminated:
+                break
+        return
+
     
+    #调用函数相关函数
+    def visitFunc(self, ctx:simpleCParser.FuncContext):
+        '''
+        语法规则：func : (strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc);
+        描述：函数
+        返回：无
+        '''
+        return self.visit(ctx.getChild(0))
+
     def visitPrintfFunc(self, ctx:simpleCParser.PrintfFuncContext):
         '''
         语法规则：printfFunc : 'printf' '(' (mSTRING | mID) (','expr)* ')';
