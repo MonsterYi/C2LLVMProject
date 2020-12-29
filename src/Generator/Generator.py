@@ -6,6 +6,7 @@ from Parser.simpleCLexer import simpleCLexer
 from llvmlite import ir
 
 double = ir.DoubleType()
+float = ir.FloatType()
 int1 = ir.IntType(1)
 int32 = ir.IntType(32)
 int8 = ir.IntType(8)
