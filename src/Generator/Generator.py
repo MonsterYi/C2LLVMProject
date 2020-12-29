@@ -27,6 +27,7 @@ class MyVisitor(simpleCVisitor):
         self.builder_list = []
         self.func_list = dict()
         self.cur_func = ''
+        self.constant = 0
 
 
     def visitProg(self, ctx:simpleCParser.ProgContext):
@@ -158,6 +159,32 @@ class MyVisitor(simpleCVisitor):
                 break
         return
 
+    def visitReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
+        '''
+        语法规则：returnBlock : 'return' (mINT|mID)? ';';
+        描述：return语句块
+        返回：无
+        '''
+        #返回空
+        if ctx.getChildCount() == 2:
+            RealReturnValue = self.builder_list[-1].ret_void()
+            JudgeTruth = False
+            return {
+                    'type': void,
+                    'const': JudgeTruth,
+                    'name': RealReturnValue
+            }
+
+        #访问返回值
+        ReturnIndex = self.visit(ctx.getChild(1))
+        RealReturnValue = self.builder_list[-1].ret(ReturnIndex['name'])
+        JudgeTruth = False
+        return {
+                'type': void,
+                'const': JudgeTruth,
+                'name': RealReturnValue
+        }
+
     
     #调用函数相关函数
     def visitFunc(self, ctx:simpleCParser.FuncContext):
@@ -202,6 +229,41 @@ class MyVisitor(simpleCVisitor):
             ReturnVariableName = TheBuilder.call(printf, Arguments)
         Result = {'type': int32, 'name': ReturnVariableName}
         return Result
+
+    def visitMINT(self, ctx:simpleCParser.MINTContext):
+        '''
+        语法规则：mINT : INT;
+        描述：int
+        返回：无
+        '''
+        JudgeReg = True
+        return {
+                'type': int32,
+                'const': JudgeReg,
+                'name': ir.Constant(int32, int(ctx.getText()))
+        }
+        
+    def visitMSTRING(self, ctx:simpleCParser.MSTRINGContext):
+        '''
+        语法规则：mSTRING : STRING;
+        描述：string
+        返回：无
+        '''
+        MarkIndex = self.constant
+        self.constant += 1
+        ProcessIndex = ctx.getText().replace('\\n', '\n')
+        ProcessIndex = ProcessIndex[1:-1]
+        ProcessIndex += '\0'
+        Len = len(bytearray(ProcessIndex, 'utf-8'))
+        JudgeReg = False
+        RealReturnValue = ir.GlobalVariable(self.module, ir.ArrayType(int8, Len), ".str%d"%MarkIndex)
+        RealReturnValue.global_constant = True
+        RealReturnValue.initializer = ir.Constant(ir.ArrayType(int8, Len), bytearray(ProcessIndex, 'utf-8'))
+        return {
+                'type': ir.ArrayType(int8, Len),
+                'const': JudgeReg,
+                'name': RealReturnValue
+        }
 
 
     def save(self, filename):
