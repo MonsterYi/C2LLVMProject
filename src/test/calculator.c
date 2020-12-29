@@ -197,24 +197,24 @@ int main() {
 	float ans = 0.0;
 	OPTR[optrTop+1] = '\n';
 	optrTop = optrTop + 1;
-	c= getchar();
+	scanf("%c",&c);
 	while (c != end || OPTR[optrTop] != end) {
 		if (!isOp(c)) {
 			c = c - '0';
 			OPND[opndTop + 1] = c;
 			opndTop = opndTop + 1;
-			c = getchar();
+			scanf("%c",&c);
 		}
 		else {
 			status = precede(OPTR[optrTop],c);
 			if (status == -1) {
 				OPTR[optrTop + 1] = c;
 				optrTop = optrTop + 1;
-				c = getchar();
+				scanf("%c",&c);
 			}
 			else if (status == 0) {
 				optrTop = optrTop - 1;
-				c = getchar();
+				scanf("%c",&c);
 			}
 			else if (status == 1) {
 				theta = OPTR[optrTop];

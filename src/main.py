@@ -1,8 +1,8 @@
 import sys
-
+from Generator.Generator import generate
 
 class CodeGenerator:
-    def __int__(self):
+    def __init__(self):
         pass
 
     def generate(self, c_filename: str):
