@@ -20,7 +20,7 @@ class MyVisitor(simpleCVisitor):
 
         # 控制llvm生成
         self.module = ir.Module()
-        self.module.triple = "x86_64-pc-windows-msvc"  # llvm.Target.from_default_triple()
+        self.module.triple = "x86_64-pc-linux-gnu"  # llvm.Target.from_default_triple()
         self.module.data_layout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"  # llvm.create_mcjit_compiler(backing_mod, target_machine)
 
         self.block_list = []
@@ -329,6 +329,31 @@ class MyVisitor(simpleCVisitor):
             'type': int32,
             'name': builder.call(scanf, arg_list)
         }
+
+    def visitSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
+        '''
+        语法规则：selfDefinedFunc : mID '('((argument|mID)(','(argument|mID))*)? ')';
+        描述：自定义函数
+        返回：函数返回值
+        '''
+        builder = self.builder_list[-1]
+        FunctionName = ctx.getChild(0).getText() # func name
+        if FunctionName in self.Functions:
+            TheFunction = self.Functions[FunctionName]
+
+            Length = ctx.getChildCount()
+            ParameterList = []
+            i = 2
+            while i < Length - 1:
+                TheParameter = self.visit(ctx.getChild(i))
+                TheParameter = self.assignConvert(TheParameter, TheFunction.args[i // 2 - 1].type)
+                ParameterList.append(TheParameter['name'])
+                i += 2
+            ReturnVariableName = TheBuilder.call(TheFunction, ParameterList)
+            Result = {'type': TheFunction.function_type.return_type, 'name': ReturnVariableName}
+            return Result
+        else:
+            raise SemanticError(ctx=ctx,msg="函数未定义！")
 
     def visitMINT(self, ctx:simpleCParser.MINTContext):
         '''
