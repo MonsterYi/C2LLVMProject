@@ -7,7 +7,7 @@ from llvmlite import ir
 from Generator.SymbolTable import SymbolTable
 
 single = ir.FloatType()
-int1 = ir.IntType(1)
+bool = ir.IntType(1)
 int32 = ir.IntType(32)
 int8 = ir.IntType(8)
 void = ir.VoidType()
@@ -472,13 +472,83 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(endwhile_block)
         self.symbol_table.func_quit()
 
+    # Visit a parse tree produced by simpleCParser#forBlock.
+    def visitForBlock(self, ctx: simpleCParser.ForBlockContext):
+        self.symbol_table.func_enter()
+        self.visit(ctx.getChild(2))
+        cur_builder = self.builder_list[-1]
+        cond_block = cur_builder.append_basic_block()
+        body_block = cur_builder.append_basic_block()
+        endfor_block = cur_builder.append_basic_block()
+
+        #visit condition
+        cur_builder.branch(cond_block)
+        self.prepareBlock(cond_block)
+        cond = self.visit(ctx.getChild(4))
+
+        self.builder_list[-1].cbranch(self.visit(cond['name'], body_block, endfor_block))
+        self.prepareBlock(body_block)
+        # visit body
+        self.visit(ctx.getChild(9))
+
+        # visit step
+        self.visit(ctx.getChild(6))
+
+        self.builder_list[-1].branch(cond_block)
+        self.prepareBlock(endfor_block)
+        self.symbol_table.func_quit()
+
+    # Visit a parse tree produced by simpleCParser#for1Block.
+    def visitFor1Block(self, ctx: simpleCParser.For1BlockContext):
+        if ctx.getChildCount()==0:
+            return
+        cache=self.need_load
+        self.need_load=False
+        ID=self.visit(ctx.getChild(0))
+        expr=self.visit(ctx.getChild(2))
+        expr=self.assignConvert(expr['name'],ID['name'])
+        self.builder_list[-1].store(expr['name'],ID['name'])
+        self.need_load=cache
+        # handle nested assignments
+        if ctx.getChildCount()>=4:
+            self.visit(ctx.getChild(4))
+
+    # Visit a parse tree produced by simpleCParser#for3Block.
+    def visitFor3Block(self, ctx: simpleCParser.For3BlockContext):
+        if ctx.getChildCount() == 0:
+            return
+        cache = self.need_load
+        self.need_load = False
+        var = self.visit(ctx.getChild(0))
+        expr = self.visit(ctx.getChild(2))
+        expr = self.assignConvert(expr, var['name'])
+        self.builder_list[-1].store(expr['name'], var['name'])
+        self.need_load = cache
+        # handle nested assignments
+        if ctx.getChildCount() >= 4:
+            self.visit(ctx.getChild(4))
+
+    def assignConvert(self, src, dest_type):
+        if src['type'] == dest_type:
+            return src
+        if self.isInteger(src['type']) and self.isInteger(dest_type):
+            if src['type'] == bool:
+                src = self.convertIIZ(src, dest_type)
+            else:
+                src = self.convertIIS(src, dest_type)
+        elif self.isInteger(src['type']) and dest_type == single:
+            src = self.convertIDS(src)
+        elif self.isInteger(dest_type) and src['type'] == single:
+            src = self.convertDIS(src)
+        return src
+
     ####### HYL #############
     # 类型转换至布尔型
     def toBoolean(self, manipulate_index, not_equal=True):
         builder = self.builder_list[-1]
         operator = "==" if not_equal else "!="
         return_dict = {
-            'type': int1,
+            'type': bool,
             'const': False
         }
         if manipulate_index['type'] == int8 or manipulate_index['type'] == int32:
