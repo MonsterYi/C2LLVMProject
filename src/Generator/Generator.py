@@ -384,18 +384,18 @@ class MyVisitor(simpleCVisitor):
 
     # 每人在自己线下面写
     ####### MHY #############
-    # Visit a parse tree produced by simpleCParser#condition.
     def prepareBlock(self, block):
         self.block_list.pop()
         self.block_list.append(block)
         self.builder_list.pop()
         self.builder_list.append(ir.IRBuilder(block))
 
+    # Visit a parse tree produced by simpleCParser#condition.
     def visitCondition(self, ctx: simpleCParser.ConditionContext):
         return self.toBoolean(self.visit(ctx.getChild(0)), False)
 
-    # Visit a parse tree produced by simpleCParser#ifBlocks.
-    def visitIfBlocks(self, ctx: simpleCParser.IfBlocksContext):
+    # Visit a parse tree produced by simpleCParser#ifSentenceBlock.
+    def visitIfSentenceBlock(self, ctx: simpleCParser.IfSentenceBlockContext):
         # If 逻辑代码块的入口，包括If Elif Else代码块
         cur_builder = self.builder_list[-1]
         if_block = cur_builder.append_basic_block()
@@ -415,8 +415,8 @@ class MyVisitor(simpleCVisitor):
         self.cur_endif_block = cache
         self.prepareBlock(endif_block)
 
-    # Visit a parse tree produced by simpleCParser#ifBlock.
-    def visitIfBlock(self, ctx: simpleCParser.IfBlockContext):
+    # Visit a parse tree produced by simpleCParser#ifSentence.
+    def visitIfSentence(self, ctx: simpleCParser.IfSentenceContext):
         self.symbol_table.func_enter()
         cur_builder = self.builder_list[-1]
         true_block = cur_builder.append_basic_block()
@@ -431,8 +431,8 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(false_block)
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#elifBlock.
-    def visitElifBlock(self, ctx: simpleCParser.ElifBlockContext):
+    # Visit a parse tree produced by simpleCParser#elifSentence.
+    def visitElifSentence(self, ctx: simpleCParser.ElifSentenceContext):
         self.symbol_table.func_enter()
         cur_builder = self.builder_list[-1]
         true_block = cur_builder.append_basic_block()
@@ -447,14 +447,14 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(false_block)
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#elseBlock.
-    def visitElseBlock(self, ctx: simpleCParser.ElseBlockContext):
+    # Visit a parse tree produced by simpleCParser#elseSentence.
+    def visitElseSentence(self, ctx: simpleCParser.ElseSentenceContext):
         self.symbol_table.func_enter()
         self.visit(ctx.getChild(2))
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#whileBlock.
-    def visitWhileBlock(self, ctx: simpleCParser.WhileBlockContext):
+    # Visit a parse tree produced by simpleCParser#whileSentence.
+    def visitWhileSentence(self, ctx: simpleCParser.WhileSentenceContext):
         self.symbol_table.func_enter()
         cur_builder = self.builder_list[-1]
         cond_block = cur_builder.append_basic_block()
@@ -474,8 +474,8 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(endwhile_block)
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#forBlock.
-    def visitForBlock(self, ctx: simpleCParser.ForBlockContext):
+    # Visit a parse tree produced by simpleCParser#forSentence.
+    def visitForSentence(self, ctx: simpleCParser.ForSentenceContext):
         self.symbol_table.func_enter()
         self.visit(ctx.getChild(2))
         cur_builder = self.builder_list[-1]
@@ -500,8 +500,8 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(endfor_block)
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#for1Block.
-    def visitFor1Block(self, ctx: simpleCParser.For1BlockContext):
+    # Visit a parse tree produced by simpleCParser#forDefineSentence.
+    def visitForDefineSentence(self, ctx: simpleCParser.ForDefineSentenceContext):
         if ctx.getChildCount() == 0:
             return
         cache = self.need_load
@@ -515,8 +515,8 @@ class MyVisitor(simpleCVisitor):
         if ctx.getChildCount() >= 4:
             self.visit(ctx.getChild(4))
 
-    # Visit a parse tree produced by simpleCParser#for3Block.
-    def visitFor3Block(self, ctx: simpleCParser.For3BlockContext):
+    # Visit a parse tree produced by simpleCParser#forIteratorSentence.
+    def visitForIteratorSentence(self, ctx: simpleCParser.ForIteratorSentenceContext):
         if ctx.getChildCount() == 0:
             return
         cache = self.need_load
