@@ -15,5 +15,5 @@ class SymbolTable:
     def func_enter(self):
         pass
 
-    def fun_quit(self):
+    def func_quit(self):
         pass
