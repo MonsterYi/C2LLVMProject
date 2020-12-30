@@ -90,7 +90,8 @@ expr:
 //函数调用
 func: (printfFunction | scanfFunction | selfDefinedFunction);
 printfFunction: 'printf' '(' mySTRING (',' expr)* ')';
-scanfFunction: 'scanf' '(' mySTRING (',' ('&')? (myID))* ')';
+scanfFunction:
+	'scanf' '(' mySTRING (',' ('&')? (myID | myARRAYITEM))* ')';
 //自定义函数调用
 selfDefinedFunction:
 	myID '(' ((argument | myID) (',' (argument | myID))*)? ')';
