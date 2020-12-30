@@ -168,22 +168,6 @@ int isOp(char a) {
 	return 0;
 }
 
-double calc(double a, char op, double b) {
-	double res = 0.0;
-	if (op == '+') {
-		res = a + b;
-	}
-	else if (op == '-') {
-		res = a - b;
-	}
-	else if (op == '*') {
-		res = a * b;
-	}
-	else if (op == '/') {
-		res = a / b;
-	}
-	return res;
-}
 
 int main() {
 	printf("Please input expression:");
@@ -206,7 +190,8 @@ int main() {
 			scanf("%c",&c);
 		}
 		else {
-			status = precede(OPTR[optrTop],c);
+			char tmp = OPTR[optrTop];
+			status = precede(tmp,c);
 			if (status == 2) {
 				OPTR[optrTop + 1] = c;
 				optrTop = optrTop + 1;
@@ -223,7 +208,18 @@ int main() {
 				opndTop = opndTop - 1;
 				a = OPND[opndTop];
 				opndTop = opndTop - 1;
-				ans = calc(a, theta, b);
+	if (theta == '+') {
+		ans = a + b;
+	}
+	else if (theta == '-') {
+		ans = a - b;
+	}
+	else if (theta == '*') {
+		ans = a * b;
+	}
+	else if (theta == '/') {
+		ans = a / b;
+	}
 				OPND[opndTop + 1] = ans;
 				opndTop = opndTop + 1;
 			}

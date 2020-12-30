@@ -840,7 +840,7 @@ class MyVisitor(simpleCVisitor):
                 'const': False,
                 'name': ir.Constant(void, None)
             }
-            
+
     def visitMDOUBLE(self, ctx: simpleCParser.MDOUBLEContext):
         """
         double : double;
