@@ -2,8 +2,6 @@
 
 char OPTR[1000];
 double OPND[1000];
-int optrTop = -1;
-int opndTop = -1;
 
 int precede(char a, char b) {
 	if (a == '+' && b == '+') {
@@ -195,6 +193,8 @@ int main() {
 	char theta;
 	double a, b = 0.0;
 	double ans = 0.0;
+	int optrTop = -1;
+	int opndTop = -1;
 	OPTR[optrTop+1] = '\n';
 	optrTop = optrTop + 1;
 	scanf("%c",&c);
