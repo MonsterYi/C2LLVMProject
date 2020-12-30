@@ -1,8 +1,8 @@
 from antlr4 import *
 
-from Parser.simpleCParser import simpleCParser
-from Parser.simpleCVisitor import simpleCVisitor
-from Parser.simpleCLexer import simpleCLexer
+from Parser2.simpleCParser import simpleCParser
+from Parser2.simpleCVisitor import simpleCVisitor
+from Parser2.simpleCLexer import simpleCLexer
 from llvmlite import ir
 from Generator.SymbolTable import SymbolTable
 
@@ -33,7 +33,7 @@ class MyVisitor(simpleCVisitor):
         self.need_load = True
         self.constants = 0
 
-    def visitProg(self, ctx: simpleCParser.ProgContext):
+    def visitProgram(self, ctx: simpleCParser.ProgramContext):
         '''
         语法规则：prog :(include)* (initialBlock|arrayInitBlock|structInitBlock|mStructDef|mFunction)*;
         描述：代码主文件
@@ -43,7 +43,7 @@ class MyVisitor(simpleCVisitor):
             self.visit(ctx.getChild(i))
 
     # 函数相关函数
-    def visitMFunction(self, ctx: simpleCParser.MFunctionContext):
+    def visitFunctionDef(self, ctx: simpleCParser.FunctionDefContext):
 
         '''
         语法规则：mFunction : (mType|mVoid|mStruct) mID '(' params ')' '{' funcBody '}';
@@ -101,7 +101,7 @@ class MyVisitor(simpleCVisitor):
         self.symbol_table.func_quit()
         return
 
-    def visitMType(self, ctx: simpleCParser.MTypeContext):
+    def visitMyType(self, ctx: simpleCParser.MyTypeContext):
         '''
         语法规则：mType : 'int'| 'float'| 'char';
         描述：类型主函数
@@ -117,7 +117,7 @@ class MyVisitor(simpleCVisitor):
             return single
         return void
 
-    def visitParams(self, ctx: simpleCParser.ParamsContext):
+    def visitFunctionParamsDef(self, ctx: simpleCParser.FunctionParamsDefContext):
         '''
         语法规则：params : param (','param)* |;
         描述：函数的参数列表
@@ -129,7 +129,7 @@ class MyVisitor(simpleCVisitor):
             para_list.append(self.visit(ctx.getChild(i)))
         return para_list
 
-    def visitParam(self, ctx:simpleCParser.ParamContext):
+    def visitFunctionParamDef(self, ctx:simpleCParser.FunctionParamDefContext):
         '''
         语法规则：param : mType mID;
         描述：返回函数参数
@@ -140,7 +140,7 @@ class MyVisitor(simpleCVisitor):
             'name': ctx.getChild(1).getText()
         }
 
-    def visitFuncBody(self, ctx: simpleCParser.FuncBodyContext):
+    def visitFunctionBodyDef(self, ctx: simpleCParser.FunctionBodyDefContext):
         '''
         语法规则：funcBody : body returnBlock;
         描述：函数体
@@ -175,7 +175,7 @@ class MyVisitor(simpleCVisitor):
             self.visit(ctx.getChild(i))
         return
 
-    def visitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
+    def visitBaseDefineSentence(self, ctx:simpleCParser.BaseDefineSentenceContext):
         '''
         语法规则：initialBlock : (mType) mID ('=' expr)? (',' mID ('=' expr)?)* ';';
         描述：初始化语句块
@@ -208,7 +208,7 @@ class MyVisitor(simpleCVisitor):
                 i += 4
         return
 
-    def visitArrayInitBlock(self, ctx:simpleCParser.ArrayInitBlockContext):
+    def visitArrayDefineSentence(self, ctx:simpleCParser.ArrayDefineSentenceContext):
         '''
         语法规则：arrayInitBlock : mType mID '[' mINT ']'';'; 
         描述：数组初始化块
@@ -226,7 +226,7 @@ class MyVisitor(simpleCVisitor):
         self.symbol_table.insert_item(id, {'Type': ir.ArrayType(Type, length), 'Name': mvar})
         return
 
-    def visitAssignBlock(self, ctx:simpleCParser.AssignBlockContext):
+    def visitAssignSentence(self, ctx:simpleCParser.AssignSentenceContext):
         '''
         语法规则：assignBlock : ((arrayItem|mID|structMember) '=')+  expr ';';
         描述：赋值语句块
@@ -250,7 +250,7 @@ class MyVisitor(simpleCVisitor):
         builder.store(self.assignConvert(val, mvar['type'])['name'], mvar['name'])
         return {'type': mvar['type'], 'name': builder.load(mvar['name'])}
 
-    def visitReturnBlock(self, ctx: simpleCParser.ReturnBlockContext):
+    def visitReturnSentence(self, ctx: simpleCParser.ReturnSentenceContext):
         '''
         语法规则：returnBlock : 'return' (mINT|mID)? ';';
         描述：return语句块
@@ -268,7 +268,7 @@ class MyVisitor(simpleCVisitor):
         }
 
     # 调用函数相关函数
-    def visitFunc(self, ctx: simpleCParser.FuncContext):
+    def visitFunction(self, ctx: simpleCParser.FunctionContext):
         '''
         语法规则：func : (strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc);
         描述：函数
@@ -276,7 +276,7 @@ class MyVisitor(simpleCVisitor):
         '''
         return self.visit(ctx.getChild(0))
 
-    def visitPrintfFunc(self, ctx: simpleCParser.PrintfFuncContext):
+    def visitPrintFunc(self, ctx: simpleCParser.PrintFuncContext):
         '''
         语法规则：printfFunc : 'printf' '(' (mSTRING | mID) (','expr)* ')';
         描述：printf函数
@@ -352,7 +352,7 @@ class MyVisitor(simpleCVisitor):
                 'name': builder.call(func, para_list)
             }
 
-    def visitMINT(self, ctx:simpleCParser.MINTContext):
+    def visitMyInt(self, ctx:simpleCParser.MyIntContext):
         '''
         语法规则：mINT : INT;
         描述：int
@@ -364,7 +364,7 @@ class MyVisitor(simpleCVisitor):
             'name': ir.Constant(int32, int(ctx.getText()))
         }
 
-    def visitMSTRING(self, ctx: simpleCParser.MSTRINGContext):
+    def visitMyString(self, ctx: simpleCParser.MyStringContext):
         """
         string : string;
         """
@@ -579,10 +579,6 @@ class MyVisitor(simpleCVisitor):
         """
         expr : op = '!' expr
         """
-        # TODO
-        #RealReturnValue = self.visit(ctx.getChild(1))
-        #RealReturnValue = self.toBoolean(RealReturnValue, True)
-        # res 未返回
         return self.visitChildren(ctx)
 
     def visitOR(self, ctx: simpleCParser.ORContext):
