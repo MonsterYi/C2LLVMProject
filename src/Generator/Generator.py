@@ -5,8 +5,7 @@ from Parser.simpleCVisitor import simpleCVisitor
 from Parser.simpleCLexer import simpleCLexer
 from llvmlite import ir
 
-double = ir.DoubleType()
-float = ir.FloatType()
+single = ir.FloatType()
 int1 = ir.IntType(1)
 int32 = ir.IntType(32)
 int8 = ir.IntType(8)
@@ -267,6 +266,10 @@ class MyVisitor(simpleCVisitor):
     
     #每人在自己线下面写
     ####### MHY #############
+    # Visit a parse tree produced by simpleCParser#condition.
+    def visitCondition(self, ctx: simpleCParser.ConditionContext):
+
+        return self.visitChildren(ctx)
 
 
     ####### HYL #############
