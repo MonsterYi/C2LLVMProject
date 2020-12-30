@@ -2,7 +2,7 @@ grammar simpleC;
 // import lexer
 import simpleCItemLexer;
 // 程序格式
-program: (include)* (defineSentence | structDef | functionDef);
+program: (include)* (defineSentence | structDef | functionDef)*;
 // ------------------------定义语句------------------------- include 语句
 include: 'include' '<' lib '>';
 // define struct
