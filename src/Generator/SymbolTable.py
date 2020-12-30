@@ -7,7 +7,7 @@ class SymbolTable:
         pass
     
     def insert_item(self, key, val):
-        pass
+        return {'result': 'success'}
 
     def has_item(self, item):
         pass
@@ -16,4 +16,7 @@ class SymbolTable:
         pass
 
     def func_quit(self):
+        pass
+
+    def is_global(self):
         pass
