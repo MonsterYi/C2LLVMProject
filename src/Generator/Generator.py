@@ -33,22 +33,18 @@ class MyVisitor(simpleCVisitor):
         self.need_load = True
         self.constants = 0
 
-    def visitProg(self, ctx: simpleCParser.ProgContext):
+    def visitProgram(self, ctx:simpleCParser.ProgramContext):
         '''
-        语法规则：prog :(include)* (initialBlock|arrayInitBlock|structInitBlock|mStructDef|mFunction)*;
-        描述：代码主文件
-        返回：无
+        program: (include)* ( initialBlock | mFunction)*;
         '''
         for i in range(0, ctx.getChildCount()):
             self.visit(ctx.getChild(i))
 
     # 函数相关函数
-    def visitMFunction(self, ctx: simpleCParser.MFunctionContext):
+    def visitMFunction(self, ctx:simpleCParser.MFunctionContext):
 
         '''
-        语法规则：mFunction : (mType|mVoid|mStruct) mID '(' params ')' '{' funcBody '}';
-        描述：函数的定义
-        返回：无
+        mFunction: (myTYPE | myVOID) myID '(' params ')' '{' funcBody '}';
         '''
         # 获取函数名 todo
         func_name = ctx.getChild(1).getText()  # func name
@@ -101,11 +97,9 @@ class MyVisitor(simpleCVisitor):
         self.symbol_table.func_quit()
         return
 
-    def visitMType(self, ctx: simpleCParser.MTypeContext):
+    def visitMyTYPE(self, ctx:simpleCParser.MyTYPEContext):
         '''
-        语法规则：mType : 'int'| 'float'| 'char';
-        描述：类型主函数
-        返回：无
+        myTYPE: 'int' | 'double' | 'char' | 'string';
         '''
         if ctx.getText() == 'int':
             return int32
@@ -117,11 +111,9 @@ class MyVisitor(simpleCVisitor):
             return single
         return void
 
-    def visitParams(self, ctx: simpleCParser.ParamsContext):
+    def visitParams(self, ctx:simpleCParser.ParamsContext):
         '''
-        语法规则：params : param (','param)* |;
-        描述：函数的参数列表
-        返回：处理后的函数参数列表
+        params: param (',' param)* |;
         '''
         length = ctx.getChildCount()
         para_list = []
@@ -131,9 +123,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitParam(self, ctx:simpleCParser.ParamContext):
         '''
-        语法规则：param : mType mID;
-        描述：返回函数参数
-        返回：一个字典，字典的Type是类型，Name是参数名
+        param: myTYPE myID;
         '''
         return {
             'type': self.visit(ctx.getChild(0)),
@@ -142,9 +132,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitFuncBody(self, ctx: simpleCParser.FuncBodyContext):
         '''
-        语法规则：funcBody : body returnBlock;
-        描述：函数体
-        返回：无
+        funcBody: body returnBlock;
         '''
         self.symbol_table.func_enter()
         for i in range(ctx.getChildCount()):
@@ -154,9 +142,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitBody(self, ctx: simpleCParser.BodyContext):
         '''
-        语法规则：body : (block | func';')*;
-        描述：语句块/函数块
-        返回：无
+        body: (block | func ';')*;
         '''
         for i in range(ctx.getChildCount()):
             self.visit(ctx.getChild(i))
@@ -167,9 +153,13 @@ class MyVisitor(simpleCVisitor):
     #语句块相关函数
     def visitBlock(self, ctx:simpleCParser.BlockContext):
         '''
-        语法规则：block : initialBlock | arrayInitBlock | structInitBlock | assignBlock | ifBlocks | whileBlock | forBlock | returnBlock;
-        描述：语句块
-        返回：无
+        block:
+            initialBlock
+            | assignBlock
+            | ifBlocks
+            | whileBlock
+            | forBlock
+            | returnBlock;
         '''
         for i in range(ctx.getChildCount()):
             self.visit(ctx.getChild(i))
@@ -177,9 +167,15 @@ class MyVisitor(simpleCVisitor):
 
     def visitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
         '''
-        语法规则：initialBlock : (mType) mID ('=' expr)? (',' mID ('=' expr)?)* ';';
-        描述：初始化语句块
-        返回：无
+        initialBlock: baseInitialBlock | arrayInitialBlock;
+        '''
+        self.visit(ctx.getChild(0))
+    
+    def visitBaseInitialBlock(self, ctx:simpleCParser.BaseInitialBlockContext):
+        '''
+        baseInitialBlock: (myTYPE) myID ('=' expr)? (
+                ',' myID ('=' expr)?
+            )* ';';
         '''
         #初始化全局变量
         var_type = self.visit(ctx.getChild(0))
@@ -208,11 +204,9 @@ class MyVisitor(simpleCVisitor):
                 i += 4
         return
 
-    def visitArrayInitBlock(self, ctx:simpleCParser.ArrayInitBlockContext):
+    def visitArrayInitialBlock(self, ctx:simpleCParser.ArrayInitialBlockContext):
         '''
-        语法规则：arrayInitBlock : mType mID '[' mINT ']'';'; 
-        描述：数组初始化块
-        返回：无
+        arrayInitialBlock: myTYPE myID '[' myINT ']' ';';
         '''
         Type = self.visit(ctx.getChild(0))
         id = ctx.getChild(1).getText()
@@ -228,9 +222,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitAssignBlock(self, ctx:simpleCParser.AssignBlockContext):
         '''
-        语法规则：assignBlock : ((arrayItem|mID|structMember) '=')+  expr ';';
-        描述：赋值语句块
-        返回：无
+        assignBlock: ((myID | myARRAYITEM) '=')+ expr ';';
         '''
         builder = self.builder_list[-1]
         length = ctx.getChildCount()
@@ -252,9 +244,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitReturnBlock(self, ctx: simpleCParser.ReturnBlockContext):
         '''
-        语法规则：returnBlock : 'return' (mINT|mID)? ';';
-        描述：return语句块
-        返回：无
+        returnBlock: 'return' (INT | ID)? ';';
         '''
         # 返回空
         if ctx.getChildCount() == 2:
@@ -268,19 +258,15 @@ class MyVisitor(simpleCVisitor):
         }
 
     # 调用函数相关函数
-    def visitFunc(self, ctx: simpleCParser.FuncContext):
+    def visitFunction(self, ctx:simpleCParser.FunctionContext):
         '''
-        语法规则：func : (strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc);
-        描述：函数
-        返回：无
+        func: (printfFunction | scanfFunction | selfDefinedFunction);
         '''
         return self.visit(ctx.getChild(0))
 
-    def visitPrintfFunc(self, ctx: simpleCParser.PrintfFuncContext):
+    def visitPrintfFunction(self, ctx:simpleCParser.PrintfFunctionContext):
         '''
-        语法规则：printfFunc : 'printf' '(' (mSTRING | mID) (','expr)* ')';
-        描述：printf函数
-        返回：函数返回值
+        printfFunction: 'printf' '(' STRING (',' expr)* ')';
         '''
         if 'printf' in self.func_list:
             printf = self.func_list['printf']
@@ -299,11 +285,9 @@ class MyVisitor(simpleCVisitor):
             'name': builder.call(printf, arg_list)
         }
 
-    def visitScanfFunc(self, ctx:simpleCParser.ScanfFuncContext):
+    def visitScanfFunction(self, ctx:simpleCParser.ScanfFunctionContext):
         '''
-        语法规则：scanfFunc : 'scanf' '(' mSTRING (','('&')?(mID|arrayItem|structMember))* ')';
-        描述：scanf函数
-        返回：函数返回值
+        scanfFunction: 'scanf' '(' STRING (',' ('&')? (ID))* ')';
         '''        
         if 'scanf' in self.func_list:
             scanf = self.func_list['scanf']
@@ -333,11 +317,10 @@ class MyVisitor(simpleCVisitor):
             'name': builder.call(scanf, arg_list)
         }
 
-    def visitSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
+    def visitSelfDefinedFunction(self, ctx:simpleCParser.SelfDefinedFunctionContext):
         '''
-        语法规则：selfDefinedFunc : mID '('((argument|mID)(','(argument|mID))*)? ')';
-        描述：自定义函数
-        返回：函数返回值
+        selfDefinedFunction:
+	        ID '(' ((argument | ID) (',' (argument | ID))*)? ')';
         '''
         builder = self.builder_list[-1]
         name = ctx.getChild(0).getText() # func name
@@ -352,11 +335,9 @@ class MyVisitor(simpleCVisitor):
                 'name': builder.call(func, para_list)
             }
 
-    def visitMINT(self, ctx:simpleCParser.MINTContext):
+    def visitMyINT(self, ctx:simpleCParser.MyINTContext):
         '''
-        语法规则：mINT : INT;
-        描述：int
-        返回：无
+        myINT: INT;
         '''
         return {
             'type': int32,
@@ -364,9 +345,9 @@ class MyVisitor(simpleCVisitor):
             'name': ir.Constant(int32, int(ctx.getText()))
         }
 
-    def visitMSTRING(self, ctx: simpleCParser.MSTRINGContext):
+    def visitMySTRING(self, ctx:simpleCParser.MySTRINGContext):
         """
-        string : string;
+        mySTRING: STRING;
         """
         mstr = ctx.getText().replace('\\n', '\n')
         mstr = mstr[1:-1]
