@@ -1,8 +1,8 @@
 from antlr4 import *
 
-from Parser.simpleCParser import simpleCParser
-from Parser.simpleCVisitor import simpleCVisitor
-from Parser.simpleCLexer import simpleCLexer
+from Parser2.simpleCParser import simpleCParser
+from Parser2.simpleCVisitor import simpleCVisitor
+from Parser2.simpleCLexer import simpleCLexer
 from llvmlite import ir
 from Generator.SymbolTable import SymbolTable
 
