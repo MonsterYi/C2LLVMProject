@@ -339,20 +339,5 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#getsFunc.
-    def visitGetsFunc(self, ctx:simpleCParser.GetsFuncContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by simpleCParser#strlenFunc.
-    def visitStrlenFunc(self, ctx:simpleCParser.StrlenFuncContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by simpleCParser#atoiFunc.
-    def visitAtoiFunc(self, ctx:simpleCParser.AtoiFuncContext):
-        return self.visitChildren(ctx)
-
-
 
 del simpleCParser

@@ -602,30 +602,3 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#getsFunc.
-    def enterGetsFunc(self, ctx:simpleCParser.GetsFuncContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#getsFunc.
-    def exitGetsFunc(self, ctx:simpleCParser.GetsFuncContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#strlenFunc.
-    def enterStrlenFunc(self, ctx:simpleCParser.StrlenFuncContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#strlenFunc.
-    def exitStrlenFunc(self, ctx:simpleCParser.StrlenFuncContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#atoiFunc.
-    def enterAtoiFunc(self, ctx:simpleCParser.AtoiFuncContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#atoiFunc.
-    def exitAtoiFunc(self, ctx:simpleCParser.AtoiFuncContext):
-        pass
-
-

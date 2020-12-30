@@ -2,7 +2,7 @@ grammar simpleC;
 // import lexer
 import simpleCItemLexer;
 // 程序格式
-program: (include)* (defineSentence | structDef | functionDef)*;
+program: (include)* (defineSentence | structDef | functionDef);
 // ------------------------定义语句------------------------- include 语句
 include: 'include' '<' lib '>';
 // define struct
@@ -34,6 +34,7 @@ sentence:
 		| returnSentence
 		| continueSentence
 		| breakSentence
+		| function
 	);
 // 声明语句
 defineSentence:
@@ -112,14 +113,7 @@ argument: myInt | myDouble | myChar | myString;
 
 //-----------------------定义函数调用-------------------------------------
 // 定义函数（调用）
-function: (
-		printFunc
-		| scanfFunc
-		| getsFunc
-		| strlenFunc
-		| atoiFunc
-		| selfDefinedFunc
-	);
+function: ( printFunc | scanfFunc | selfDefinedFunc);
 // 自定义函数（名称）
 selfDefinedFunc:
 	myID '(' ((argument | myID) (',' (argument | myID))*)? ')';
@@ -129,6 +123,3 @@ scanfFunc:
 	'scanf' '(' myString (
 		',' ('&')? (myID | arrayItem | structItem)
 	);
-getsFunc: 'gets' '(' (myID | structItem) ')';
-strlenFunc: 'strlen' '(' myID ')';
-atoiFunc: 'atoi' '(' myID ')';

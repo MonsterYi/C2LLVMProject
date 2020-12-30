@@ -40,4 +40,4 @@ Parser
 
 `== != < > <= >=`，在 `CONJUNCTION` 中定义了逻辑判断的连接符 `&&` 和 `||`。定义了行注释、多行注释以及空格缩进符换行符等字符的跳过操作。
 
-​	语法分析的规则定义在了 `SimpleC.g4` 中
+​	语法分析的规则定义在了 `SimpleC.g4` 中，入口开始符号是 `program`，产生式为 `program->(include)* (defineSentence | structDef | functionDef)*`，在 `include` 中定义了调库操作， `defineSentence` 是对各种变量的声明，`structDef` 是对结构体的定义，`functionDef` 则是对函数的定义。`functionDef` 中定义了函数，它包含对函数头 `functionHeaderDef` 和 函数体 `functionBodyDef` 的定义，前者包含了对返回值类型，
