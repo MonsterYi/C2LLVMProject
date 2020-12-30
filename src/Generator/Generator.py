@@ -115,6 +115,12 @@ class MyVisitor(simpleCVisitor):
         '''
         functionBodyDef: '{' block '}';
         '''
+        self.visit(ctx.getChild(1))
+    
+    def visitBlock(self, ctx:simpleCParser.BlockContext):
+        '''
+        block: (sentence)+;
+        '''
         self.symbol_table.func_enter()
         for i in range(1, ctx.getChildCount() - 1):
             self.visit(ctx.getChild(i))
