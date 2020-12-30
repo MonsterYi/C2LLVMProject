@@ -29,6 +29,7 @@ class MyVisitor(simpleCVisitor):
         self.cur_func = ''
         self.constant = 0
         self.need_load = True
+        self.cur_endif_block=None
         self.symbol_table = SymbolTable()
 
     def visitProg(self, ctx: simpleCParser.ProgContext):
@@ -401,8 +402,32 @@ class MyVisitor(simpleCVisitor):
     ####### MHY #############
     # Visit a parse tree produced by simpleCParser#condition.
     def visitCondition(self, ctx: simpleCParser.ConditionContext):
+        return self.toBoolean(self.visitChildren(ctx), False)
 
-        return self.visitChildren(ctx)
+    # Visit a parse tree produced by simpleCParser#ifBlocks.
+    def visitIfBlocks(self, ctx: simpleCParser.IfBlocksContext):
+        #If 逻辑代码块的入口，包括If Elif Else代码块
+        cur_builder=self.builder_list[-1]
+        if_block=cur_builder.append_basic_block()
+        endif_block=cur_builder.append_basic_block()
+
+        cache=self.cur_endif_block
+        self.cur_endif_block=endif_block
+
+        cur_builder.branch(if_block)
+        self.block_list.pop()
+        self.block_list.append(if_block)
+        self.builder_list.pop()
+        self.builder_list.append(ir.IRBuilder(if_block))
+
+        for _ in range(ctx.getChildCount()):
+            self.visitChildren(ctx.getChild(_))
+
+        if not self.block_list.pop().is_terminated:
+            self.builder_list.pop().branch(endif_block)
+        self.cur_endif_block=cache
+        self.block_list.append(endif_block)
+        self.builder_list.append(ir.IRBuilder(endif_block))
 
     ####### HYL #############
     # 类型转换至布尔型
