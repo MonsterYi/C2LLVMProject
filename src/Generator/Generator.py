@@ -35,20 +35,20 @@ class MyVisitor(simpleCVisitor):
 
     def visitProgram(self, ctx: simpleCParser.ProgramContext):
         '''
-        语法规则：prog :(include)* (initialBlock|arrayInitBlock|structInitBlock|mStructDef|mFunction)*;
-        描述：代码主文件
-        返回：无
+        program: (include)* (defineSentence | structDef | functionDef);
         '''
         for i in range(0, ctx.getChildCount()):
             self.visit(ctx.getChild(i))
 
     # 函数相关函数
-    def visitFunctionDef(self, ctx: simpleCParser.FunctionDefContext):
+    def visitFunctionDef(self, ctx:simpleCParser.FunctionDefContext):
+        self.visit(ctx.getChild(0))
+        self.visit(ctx.getChild(1))
+
+    def visitFunctionHeaderDef(self, ctx: simpleCParser.FunctionHeaderDefContext):
 
         '''
-        语法规则：mFunction : (mType|mVoid|mStruct) mID '(' params ')' '{' funcBody '}';
-        描述：函数的定义
-        返回：无
+        functionHeaderDef: (myType | myVoid | struct) myID '(' functionParamsDef ')';
         '''
         # 获取函数名 todo
         func_name = ctx.getChild(1).getText()  # func name
@@ -90,38 +90,23 @@ class MyVisitor(simpleCVisitor):
             mvar = builder.alloca(para_list[i]['type'])
             builder.store(llvm_func.args[i], mvar)
             self.symbol_table.insert_item(para_list[i]['name'], {'Type': para_list[i]['type'], 'Name': mvar})
-
-        # 处理函数body
-        self.visit(ctx.getChild(6))  # func body
-
-        # 处理完毕，退一层
-        self.cur_func = ''
-        self.block_list.pop()
-        self.builder_list.pop()
-        self.symbol_table.func_quit()
         return
 
     def visitMyType(self, ctx: simpleCParser.MyTypeContext):
         '''
-        语法规则：mType : 'int'| 'float'| 'char';
-        描述：类型主函数
-        返回：无
+        myType: 'int' | 'double' | 'char';
         '''
         if ctx.getText() == 'int':
             return int32
         if ctx.getText() == 'char':
             return int8
-        if ctx.getText() == 'float':
-            return single
         if ctx.getText() == 'double':
             return single
         return void
 
     def visitFunctionParamsDef(self, ctx: simpleCParser.FunctionParamsDefContext):
         '''
-        语法规则：params : param (','param)* |;
-        描述：函数的参数列表
-        返回：处理后的函数参数列表
+        functionParamsDef: functionParamDef (',' functionParamDef)* |;
         '''
         length = ctx.getChildCount()
         para_list = []
@@ -131,9 +116,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitFunctionParamDef(self, ctx:simpleCParser.FunctionParamDefContext):
         '''
-        语法规则：param : mType mID;
-        描述：返回函数参数
-        返回：一个字典，字典的Type是类型，Name是参数名
+        functionParamDef: (myType | struct) myID;
         '''
         return {
             'type': self.visit(ctx.getChild(0)),
@@ -142,34 +125,45 @@ class MyVisitor(simpleCVisitor):
 
     def visitFunctionBodyDef(self, ctx: simpleCParser.FunctionBodyDefContext):
         '''
-        语法规则：funcBody : body returnBlock;
-        描述：函数体
-        返回：无
+        functionBodyDef: '{' block '}';
         '''
         self.symbol_table.func_enter()
-        for i in range(ctx.getChildCount()):
+        for i in range(1, ctx.getChildCount() - 1):
             self.visit(ctx.getChild(i))
+            if self.block_list[-1].is_terminated:
+                break
+        self.symbol_table.func_quit()
+        # 处理完毕，退一层
+        self.cur_func = ''
+        self.block_list.pop()
+        self.builder_list.pop()
         self.symbol_table.func_quit()
         return
-
+    '''
     def visitBody(self, ctx: simpleCParser.BodyContext):
-        '''
         语法规则：body : (block | func';')*;
         描述：语句块/函数块
         返回：无
-        '''
         for i in range(ctx.getChildCount()):
             self.visit(ctx.getChild(i))
             if self.block_list[-1].is_terminated:
                 break
         return
-
+    '''
     #语句块相关函数
-    def visitBlock(self, ctx:simpleCParser.BlockContext):
+    def visitSentence(self, ctx:simpleCParser.SentenceContext):
         '''
-        语法规则：block : initialBlock | arrayInitBlock | structInitBlock | assignBlock | ifBlocks | whileBlock | forBlock | returnBlock;
-        描述：语句块
-        返回：无
+        sentence:
+            (
+                defineSentence
+                | assignSentence
+                | ifSentenceBlock
+                | whileSentence
+                | forSentence
+                | returnSentence
+                | continueSentence
+                | breakSentence
+            );
         '''
         for i in range(ctx.getChildCount()):
             self.visit(ctx.getChild(i))
@@ -177,9 +171,8 @@ class MyVisitor(simpleCVisitor):
 
     def visitBaseDefineSentence(self, ctx:simpleCParser.BaseDefineSentenceContext):
         '''
-        语法规则：initialBlock : (mType) mID ('=' expr)? (',' mID ('=' expr)?)* ';';
-        描述：初始化语句块
-        返回：无
+        baseDefineSentence:
+	        myType myID ('=' expr)? (',' myID ('=' expr)?)* ';';
         '''
         #初始化全局变量
         var_type = self.visit(ctx.getChild(0))
@@ -210,9 +203,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitArrayDefineSentence(self, ctx:simpleCParser.ArrayDefineSentenceContext):
         '''
-        语法规则：arrayInitBlock : mType mID '[' mINT ']'';'; 
-        描述：数组初始化块
-        返回：无
+        arrayDefineSentence: myType myID '[' myInt ']' ';';
         '''
         Type = self.visit(ctx.getChild(0))
         id = ctx.getChild(1).getText()
@@ -228,9 +219,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitAssignSentence(self, ctx:simpleCParser.AssignSentenceContext):
         '''
-        语法规则：assignBlock : ((arrayItem|mID|structMember) '=')+  expr ';';
-        描述：赋值语句块
-        返回：无
+        assignSentence: ((arrayItem | myID | structItem) '=')+ expr ';';
         '''
         builder = self.builder_list[-1]
         length = ctx.getChildCount()
@@ -252,9 +241,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitReturnSentence(self, ctx: simpleCParser.ReturnSentenceContext):
         '''
-        语法规则：returnBlock : 'return' (mINT|mID)? ';';
-        描述：return语句块
-        返回：无
+        returnSentence: 'return' (myInt | myID | myDouble)? ';';
         '''
         # 返回空
         if ctx.getChildCount() == 2:
@@ -270,17 +257,20 @@ class MyVisitor(simpleCVisitor):
     # 调用函数相关函数
     def visitFunction(self, ctx: simpleCParser.FunctionContext):
         '''
-        语法规则：func : (strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc);
-        描述：函数
-        返回：无
+        function: (
+                printFunc
+                | scanfFunc
+                | getsFunc
+                | strlenFunc
+                | atoiFunc
+                | selfDefinedFunc
+            );
         '''
         return self.visit(ctx.getChild(0))
 
     def visitPrintFunc(self, ctx: simpleCParser.PrintFuncContext):
         '''
-        语法规则：printfFunc : 'printf' '(' (mSTRING | mID) (','expr)* ')';
-        描述：printf函数
-        返回：函数返回值
+        printFunc: 'printf' '(' (myString | myID) (',' expr)* ')';
         '''
         if 'printf' in self.func_list:
             printf = self.func_list['printf']
@@ -301,9 +291,10 @@ class MyVisitor(simpleCVisitor):
 
     def visitScanfFunc(self, ctx:simpleCParser.ScanfFuncContext):
         '''
-        语法规则：scanfFunc : 'scanf' '(' mSTRING (','('&')?(mID|arrayItem|structMember))* ')';
-        描述：scanf函数
-        返回：函数返回值
+        scanfFunc:
+            'scanf' '(' myString (
+                ',' ('&')? (myID | arrayItem | structItem)
+            );
         '''        
         if 'scanf' in self.func_list:
             scanf = self.func_list['scanf']
@@ -335,9 +326,8 @@ class MyVisitor(simpleCVisitor):
 
     def visitSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
         '''
-        语法规则：selfDefinedFunc : mID '('((argument|mID)(','(argument|mID))*)? ')';
-        描述：自定义函数
-        返回：函数返回值
+        selfDefinedFunc:
+	        myID '(' ((argument | myID) (',' (argument | myID))*)? ')';
         '''
         builder = self.builder_list[-1]
         name = ctx.getChild(0).getText() # func name
@@ -354,9 +344,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitMyInt(self, ctx:simpleCParser.MyIntContext):
         '''
-        语法规则：mINT : INT;
-        描述：int
-        返回：无
+        myInt: INT;
         '''
         return {
             'type': int32,
@@ -366,7 +354,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitMyString(self, ctx: simpleCParser.MyStringContext):
         """
-        string : string;
+        myString: STRING;
         """
         mstr = ctx.getText().replace('\\n', '\n')
         mstr = mstr[1:-1]
@@ -580,6 +568,7 @@ class MyVisitor(simpleCVisitor):
         expr : op = '!' expr
         """
         return self.visitChildren(ctx)
+    
 
     def visitExpr_or(self, ctx: simpleCParser.ORContext):
         """
