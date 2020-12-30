@@ -328,9 +328,7 @@ class MyVisitor(simpleCVisitor):
         """
         mySTRING: STRING;
         """
-        mstr = ctx.getText().replace('\\n', '\n')
-        mstr = mstr[1:-1]
-        mstr += '\0'
+        mstr = ctx.getText().replace('\\n', '\n')[1:-1] + '\0'
         length = len(bytearray(mstr, 'utf-8'))
         ret = ir.GlobalVariable(self.module, ir.ArrayType(byte1, length), ".str%d" % self.constants)
         self.constants += 1
