@@ -20,7 +20,7 @@ class MyVisitor(simpleCVisitor):
 
         # 控制llvm生成
         self.module = ir.Module()
-        self.module.triple = "x86_64-pc-windows-msvc"  # llvm.Target.from_default_triple()
+        self.module.triple = "x86_64-pc-linux-gnu"  # llvm.Target.from_default_triple()
         self.module.data_layout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"  # llvm.create_mcjit_compiler(backing_mod, target_machine)
 
         self.block_list = []
@@ -56,15 +56,15 @@ class MyVisitor(simpleCVisitor):
         para_list = self.visit(ctx.getChild(3))  # func params
 
         # 根据返回值，函数名称和参数生成llvm函数
-        ParameterTypeList = []
+        type_list = []
         for i in range(len(para_list)):
-            ParameterTypeList.append(para_list[i]['type'])
-        llvm_type = ir.FunctionType(self.visit(ctx.getChild(0)), ParameterTypeList)
+            type_list.append(para_list[i]['type'])
+        llvm_type = ir.FunctionType(self.visit(ctx.getChild(0)), type_list)
         llvm_func = ir.Function(self.module, llvm_type, name = func_name)
 
         # 存储函数的变量
         for i in range(len(para_list)):
-            llvm_func.args[i].name = para_list[i]['IDname']
+            llvm_func.args[i].name = para_list[i]['name']
 
         #存储函数的block
         block = llvm_func.append_basic_block(name = func_name + '.entry')
@@ -86,15 +86,9 @@ class MyVisitor(simpleCVisitor):
 
         # 存储函数的变量
         for i in range(len(para_list)):
-            NewVariable = builder.alloca(para_list[i]['type'])
-            builder.store(llvm_func.args[i], NewVariable)
-            TheVariable = {}
-            TheVariable["Type"] = para_list[i]['type']
-            TheVariable["Name"] = NewVariable
-            TheResult = self.SymbolTable.AddItem(para_list[i]['IDname'], TheVariable)
-            if TheResult["result"] != "success":
-                # raise SemanticError(ctx=ctx,msg=TheResult["reason"])
-                pass
+            mvar = builder.alloca(para_list[i]['type'])
+            builder.store(llvm_func.args[i], mvar)
+            self.symbol_table.insert_item(para_list[i]['name'], {'Type': para_list[i]['type'], 'Name': mvar})
 
         # 处理函数body
         self.visit(ctx.getChild(6))  # func body
@@ -140,7 +134,7 @@ class MyVisitor(simpleCVisitor):
         '''
         return {
             'type': self.visit(ctx.getChild(0)),
-            'IDname': ctx.getChild(1).getText()
+            'name': ctx.getChild(1).getText()
         }
 
     def visitFuncBody(self, ctx: simpleCParser.FuncBodyContext):
@@ -187,32 +181,27 @@ class MyVisitor(simpleCVisitor):
         #初始化全局变量
         var_type = self.visit(ctx.getChild(0))
         length = ctx.getChildCount()
-        
         i = 1
         while i < length:
-            IDname = ctx.getChild(i).getText()
+            id = ctx.getChild(i).getText()
             if self.symbol_table.is_global() == True:   
-                mvar = ir.GlobalVariable(self.module, var_type, name = IDname)
+                mvar = ir.GlobalVariable(self.module, var_type, name = id)
                 mvar.linkage = 'internal'
             else:
-                mvar = self.builder_list[-1].alloca(var_type, name = IDname)
-            TheResult = self.symbol_table.insert_item(IDname, {'Type': var_type, 'Name': mvar})
-            if TheResult["result"] != "success":
-                #raise SemanticError(ctx=ctx,msg=TheResult["reason"])
-                pass
-
+                mvar = self.builder_list[-1].alloca(var_type, name = id)
+            self.symbol_table.insert_item(id, {'Type': var_type, 'Name': mvar})
             if ctx.getChild(i + 1).getText() != '=':
                 i += 2
             else:
                 #初始化
-                Value = self.visit(ctx.getChild(i + 2))
+                val = self.visit(ctx.getChild(i + 2))
                 if self.symbol_table.is_global() == True:
                     #全局变量
-                    mvar.initializer = ir.Constant(Value['type'], Value['name'].constant)
+                    mvar.initializer = ir.Constant(val['type'], val['name'].constant)
                 else:
                     #局部变量，可能有强制类型转换
-                    Value = self.assignConvert(Value, var_type)
-                    self.builder_list[-1].store(Value['name'], mvar)
+                    val = self.assignConvert(val, var_type)
+                    self.builder_list[-1].store(val['name'], mvar)
                 i += 4
         return
 
@@ -223,16 +212,15 @@ class MyVisitor(simpleCVisitor):
         返回：无
         '''
         Type = self.visit(ctx.getChild(0))
-        IDname = ctx.getChild(1).getText()
+        id = ctx.getChild(1).getText()
         length = int(ctx.getChild(3).getText())
-
-        if self.symbol_table.JudgeWhetherGlobal() == True:   
+        if self.symbol_table.is_global() == True:   
             #全局变量
-            mvar = ir.GlobalVariable(self.module, ir.ArrayType(Type, length), name = IDname)
+            mvar = ir.GlobalVariable(self.module, ir.ArrayType(Type, length), name = id)
             mvar.linkage = 'internal'
         else:
-            mvar = self.builder_list[-1].alloca(ir.ArrayType(Type, length), name = IDname)
-        self.symbol_table.insert_item(IDname, {'Type': ir.ArrayType(Type, length), 'Name': mvar})
+            mvar = self.builder_list[-1].alloca(ir.ArrayType(Type, length), name = id)
+        self.symbol_table.insert_item(id, {'Type': ir.ArrayType(Type, length), 'Name': mvar})
         return
 
     def visitAssignBlock(self, ctx:simpleCParser.AssignBlockContext):
@@ -241,51 +229,23 @@ class MyVisitor(simpleCVisitor):
         描述：赋值语句块
         返回：无
         '''
-        TheBuilder = self.builder_list[-1]
-        Length = ctx.getChildCount()
-        IDname = ctx.getChild(0).getText()
-        if not '[' in IDname and self.symbol_table.has_item(IDname) == False:
-            raise SemanticError(ctx=ctx, msg="变量未定义！")
-
-        # 待赋值结果
-        ValueToBeAssigned = self.visit(ctx.getChild(Length - 2))
-
-        i = 0
-        Result = {'type': ValueToBeAssigned['type'], 'name': ValueToBeAssigned['name']}
-        # 遍历全部左边变量赋值
-        while i < Length - 2:
-            PreviousNeedLoad = self.need_load
-            self.need_load = False
-            TheVariable = self.visit(ctx.getChild(i))
-            self.need_load = PreviousNeedLoad
-
-            TheValueToBeAssigned = ValueToBeAssigned
-            TheValueToBeAssigned = self.assignConvert(TheValueToBeAssigned, TheVariable['type'])
-            TheBuilder.store(TheValueToBeAssigned['name'], TheVariable['name'])
-            if i > 0:
-                ReturnVariable = TheBuilder.load(TheVariable['name'])
-                Result = {'type': TheVariable['type'], 'name': ReturnVariable}
-            i += 2
-        return Result
-        # builder = self.builder_list[-1]
-        # length = ctx.getChildCount()
-        # IDname = ctx.getChild(0).getText()
-        # if not '[' in IDname and self.symbol_table.has_item(IDname) == False:
-        #     # raise SemanticError(ctx=ctx,msg="变量未定义！")
-        #     pass
-        #
-        # #待赋值结果
-        # val = self.visit(ctx.getChild(length - 2))
-        #
-        # #遍历全部左边变量赋值
-        # tmp = self.need_load
-        # self.need_load = False
-        # mvar = self.visit(ctx.getChild(0))
-        # self.need_load = tmp
-        #
-        # TheValueToBeAssigned = self.assignConvert(val, mvar['type'])
-        # builder.store(TheValueToBeAssigned['name'], mvar['name'])
-        # return {'type': mvar['type'], 'name': builder.load(mvar['name'])}
+        builder = self.builder_list[-1]
+        length = ctx.getChildCount()
+        id = ctx.getChild(0).getText()
+        if not '[' in id and self.symbol_table.has_item(id) == False:
+            # raise SemanticError(ctx=ctx,msg="变量未定义！")
+            pass
+        
+        #待赋值结果
+        val = self.visit(ctx.getChild(length - 2))
+        
+        #遍历全部左边变量赋值
+        tmp = self.need_load
+        self.need_load = False
+        mvar = self.visit(ctx.getChild(0))
+        self.need_load = tmp
+        builder.store(self.assignConvert(val, mvar['type'])['name'], mvar['name'])
+        return {'type': mvar['type'], 'name': builder.load(mvar['name'])}
 
     def visitReturnBlock(self, ctx: simpleCParser.ReturnBlockContext):
         '''
@@ -369,6 +329,31 @@ class MyVisitor(simpleCVisitor):
             'type': int32,
             'name': builder.call(scanf, arg_list)
         }
+
+    def visitSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
+        '''
+        语法规则：selfDefinedFunc : mID '('((argument|mID)(','(argument|mID))*)? ')';
+        描述：自定义函数
+        返回：函数返回值
+        '''
+        builder = self.builder_list[-1]
+        FunctionName = ctx.getChild(0).getText() # func name
+        if FunctionName in self.Functions:
+            TheFunction = self.Functions[FunctionName]
+
+            Length = ctx.getChildCount()
+            ParameterList = []
+            i = 2
+            while i < Length - 1:
+                TheParameter = self.visit(ctx.getChild(i))
+                TheParameter = self.assignConvert(TheParameter, TheFunction.args[i // 2 - 1].type)
+                ParameterList.append(TheParameter['name'])
+                i += 2
+            ReturnVariableName = TheBuilder.call(TheFunction, ParameterList)
+            Result = {'type': TheFunction.function_type.return_type, 'name': ReturnVariableName}
+            return Result
+        else:
+            raise SemanticError(ctx=ctx,msg="函数未定义！")
 
     def visitMINT(self, ctx:simpleCParser.MINTContext):
         '''
