@@ -55,26 +55,26 @@ class MyVisitor(simpleCVisitor):
         ParameterTypeList = []
         for i in range(len(para_list)):
             ParameterTypeList.append(para_list[i]['type'])
-        LLVMFunctionType = ir.FunctionType(self.visit(ctx.getChild(0)), ParameterTypeList)
-        LLVMFunction = ir.Function(self.module, LLVMFunctionType, name=func_name)
+        llvm_type = ir.FunctionType(self.visit(ctx.getChild(0)), ParameterTypeList)
+        llvm_func = ir.Function(self.module, llvm_type, name = func_name)
 
         # 存储函数的变量
         for i in range(len(para_list)):
-            LLVMFunction.args[i].name = para_list[i]['IDname']
+            llvm_func.args[i].name = para_list[i]['IDname']
 
-        # 存储函数的block
-        TheBlock = LLVMFunction.append_basic_block(name=func_name + '.entry')
+        #存储函数的block
+        block = llvm_func.append_basic_block(name = func_name + '.entry')
 
         # 判断重定义，存储函数
         if func_name in self.func_list:
             # raise SemanticError(ctx=ctx,msg="函数重定义错误！")
             pass
         else:
-            self.func_list[func_name] = LLVMFunction
+            self.func_list[func_name] = llvm_func
 
-        TheBuilder = ir.IRBuilder(TheBlock)
-        self.block_list.append(TheBlock)
-        self.builder_list.append(TheBuilder)
+        builder = ir.IRBuilder(block)
+        self.block_list.append(block)
+        self.builder_list.append(builder)
 
         # 进一层
         self.cur_func = func_name
@@ -82,8 +82,8 @@ class MyVisitor(simpleCVisitor):
 
         # 存储函数的变量
         for i in range(len(para_list)):
-            NewVariable = TheBuilder.alloca(para_list[i]['type'])
-            TheBuilder.store(LLVMFunction.args[i], NewVariable)
+            NewVariable = builder.alloca(para_list[i]['type'])
+            builder.store(llvm_func.args[i], NewVariable)
             TheVariable = {}
             TheVariable["Type"] = para_list[i]['type']
             TheVariable["Name"] = NewVariable
@@ -166,20 +166,11 @@ class MyVisitor(simpleCVisitor):
         # 返回空
         if ctx.getChildCount() == 2:
             RealReturnValue = self.builder_list[-1].ret_void()
-            JudgeTruth = False
-            return {
-                'type': void,
-                'const': JudgeTruth,
-                'name': RealReturnValue
-            }
-
-        # 访问返回值
-        ReturnIndex = self.visit(ctx.getChild(1))
-        RealReturnValue = self.builder_list[-1].ret(ReturnIndex['name'])
-        JudgeTruth = False
+        else:
+            RealReturnValue = self.builder_list[-1].ret(self.visit(ctx.getChild(1))['name'])
         return {
             'type': void,
-            'const': JudgeTruth,
+            'const': False,
             'name': RealReturnValue
         }
 
@@ -201,31 +192,19 @@ class MyVisitor(simpleCVisitor):
         if 'printf' in self.func_list:
             printf = self.func_list['printf']
         else:
-            printfType = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg=True)
-            printf = ir.Function(self.module, printfType, name="printf")
+            printf_type = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg = True)
+            printf = ir.Function(self.module, printf_type, name = "printf")
             self.func_list['printf'] = printf
-
-        TheBuilder = self.builder_list[-1]
+        builder = self.builder_list[-1]
         zero = ir.Constant(int32, 0)
-
-        # 就一个变量
-        if ctx.getChildCount() == 4:
-            ParameterInfo = self.visit(ctx.getChild(2))
-            Argument = TheBuilder.gep(ParameterInfo['name'], [zero, zero], inbounds=True)
-            ReturnVariableName = TheBuilder.call(printf, [Argument])
-        else:
-            ParameterInfo = self.visit(ctx.getChild(2))
-            Arguments = [TheBuilder.gep(ParameterInfo['name'], [zero, zero], inbounds=True)]
-
-            Length = ctx.getChildCount()
-            i = 4
-            while i < Length - 1:
-                OneParameter = self.visit(ctx.getChild(i))
-                Arguments.append(OneParameter['name'])
-                i += 2
-            ReturnVariableName = TheBuilder.call(printf, Arguments)
-        Result = {'type': int32, 'name': ReturnVariableName}
-        return Result
+        arg_list = [builder.gep(self.visit(ctx.getChild(2))['name'], [zero, zero], inbounds = True)]
+        length = ctx.getChildCount()
+        for i in range(4, length - 1, 2):
+            arg_list.append(self.visit(ctx.getChild(i))['name'])
+        return {
+            'type': int32,
+            'name': builder.call(printf, arg_list)
+        }
 
     def visitMINT(self, ctx: simpleCParser.MINTContext):
         '''
