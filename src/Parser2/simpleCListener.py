@@ -26,33 +26,6 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#structDef.
-    def enterStructDef(self, ctx:simpleCParser.StructDefContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#structDef.
-    def exitStructDef(self, ctx:simpleCParser.StructDefContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#structBodyDef.
-    def enterStructBodyDef(self, ctx:simpleCParser.StructBodyDefContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#structBodyDef.
-    def exitStructBodyDef(self, ctx:simpleCParser.StructBodyDefContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#structItemDef.
-    def enterStructItemDef(self, ctx:simpleCParser.StructItemDefContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#structItemDef.
-    def exitStructItemDef(self, ctx:simpleCParser.StructItemDefContext):
-        pass
-
-
     # Enter a parse tree produced by simpleCParser#functionDef.
     def enterFunctionDef(self, ctx:simpleCParser.FunctionDefContext):
         pass
@@ -140,15 +113,6 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#arrayDefineSentence.
     def exitArrayDefineSentence(self, ctx:simpleCParser.ArrayDefineSentenceContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#structDefineSentence.
-    def enterStructDefineSentence(self, ctx:simpleCParser.StructDefineSentenceContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#structDefineSentence.
-    def exitStructDefineSentence(self, ctx:simpleCParser.StructDefineSentenceContext):
         pass
 
 
@@ -275,15 +239,6 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#expr_add.
     def exitExpr_add(self, ctx:simpleCParser.Expr_addContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#expr_structitem.
-    def enterExpr_structitem(self, ctx:simpleCParser.Expr_structitemContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#expr_structitem.
-    def exitExpr_structitem(self, ctx:simpleCParser.Expr_structitemContext):
         pass
 
 
@@ -503,15 +458,6 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#struct.
-    def enterStruct(self, ctx:simpleCParser.StructContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#struct.
-    def exitStruct(self, ctx:simpleCParser.StructContext):
-        pass
-
-
     # Enter a parse tree produced by simpleCParser#myType.
     def enterMyType(self, ctx:simpleCParser.MyTypeContext):
         pass
@@ -545,15 +491,6 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#myVoid.
     def exitMyVoid(self, ctx:simpleCParser.MyVoidContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#structItem.
-    def enterStructItem(self, ctx:simpleCParser.StructItemContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#structItem.
-    def exitStructItem(self, ctx:simpleCParser.StructItemContext):
         pass
 
 

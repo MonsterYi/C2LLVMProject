@@ -19,21 +19,6 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#structDef.
-    def visitStructDef(self, ctx:simpleCParser.StructDefContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by simpleCParser#structBodyDef.
-    def visitStructBodyDef(self, ctx:simpleCParser.StructBodyDefContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by simpleCParser#structItemDef.
-    def visitStructItemDef(self, ctx:simpleCParser.StructItemDefContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by simpleCParser#functionDef.
     def visitFunctionDef(self, ctx:simpleCParser.FunctionDefContext):
         return self.visitChildren(ctx)
@@ -81,11 +66,6 @@ class simpleCVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by simpleCParser#arrayDefineSentence.
     def visitArrayDefineSentence(self, ctx:simpleCParser.ArrayDefineSentenceContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by simpleCParser#structDefineSentence.
-    def visitStructDefineSentence(self, ctx:simpleCParser.StructDefineSentenceContext):
         return self.visitChildren(ctx)
 
 
@@ -156,11 +136,6 @@ class simpleCVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by simpleCParser#expr_add.
     def visitExpr_add(self, ctx:simpleCParser.Expr_addContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by simpleCParser#expr_structitem.
-    def visitExpr_structitem(self, ctx:simpleCParser.Expr_structitemContext):
         return self.visitChildren(ctx)
 
 
@@ -284,11 +259,6 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#struct.
-    def visitStruct(self, ctx:simpleCParser.StructContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by simpleCParser#myType.
     def visitMyType(self, ctx:simpleCParser.MyTypeContext):
         return self.visitChildren(ctx)
@@ -306,11 +276,6 @@ class simpleCVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by simpleCParser#myVoid.
     def visitMyVoid(self, ctx:simpleCParser.MyVoidContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by simpleCParser#structItem.
-    def visitStructItem(self, ctx:simpleCParser.StructItemContext):
         return self.visitChildren(ctx)
 
 
