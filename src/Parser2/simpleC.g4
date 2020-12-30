@@ -73,21 +73,21 @@ continueSentence: 'continue;';
 breakSentence: 'break;';
 //-------------------------定义运算-------------------------
 expr:
-	'(' expr ')'
-	| op = '!' expr
-	| expr '&&' expr
-	| expr '||' expr
-	| expr op = ('*' | '/' | '%') expr
-	| expr op = ('+' | '-') expr
-	| expr op = ('==' | '!=' | '<' | '>' | '<=' | '>=')
-	| myID
-	| structItem
-	| arrayItem
-	| (op = '-')? myInt
-	| (op = '-')? myDouble
-	| myChar
-	| myString
-	| function;
+	'(' expr ')'										# expr_parens
+	| op = '!' expr										# expr_neg
+	| expr '&&' expr									# expr_and
+	| expr '||' expr									# expr_or
+	| expr op = ('*' | '/' | '%') expr					# expr_mul
+	| expr op = ('+' | '-') expr						# expr_add
+	| expr op = ('==' | '!=' | '<' | '>' | '<=' | '>=')	# expr_judge
+	| myID												# expr_identifier
+	| structItem										# expr_structitem
+	| arrayItem											# expr_arrayitem
+	| (op = '-')? myInt									# expr_int
+	| (op = '-')? myDouble								# expr_double
+	| myChar											# expr_char
+	| myString											# expr_string
+	| function											# expr_function;
 
 // -----------------------导入词素--------------------
 lib: LIB;

@@ -1913,6 +1913,17 @@ public class simpleCParser extends Parser {
 	}
 
 	public static class ExprContext extends ParserRuleContext {
+		public ExprContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_expr; }
+	 
+		public ExprContext() { }
+		public void copyFrom(ExprContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class Expr_addContext extends ExprContext {
 		public Token op;
 		public List<ExprContext> expr() {
 			return getRuleContexts(ExprContext.class);
@@ -1920,34 +1931,105 @@ public class simpleCParser extends Parser {
 		public ExprContext expr(int i) {
 			return getRuleContext(ExprContext.class,i);
 		}
-		public MyIDContext myID() {
-			return getRuleContext(MyIDContext.class,0);
-		}
+		public Expr_addContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_structitemContext extends ExprContext {
 		public StructItemContext structItem() {
 			return getRuleContext(StructItemContext.class,0);
 		}
-		public ArrayItemContext arrayItem() {
-			return getRuleContext(ArrayItemContext.class,0);
+		public Expr_structitemContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_parensContext extends ExprContext {
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
 		}
-		public MyIntContext myInt() {
-			return getRuleContext(MyIntContext.class,0);
-		}
-		public MyDoubleContext myDouble() {
-			return getRuleContext(MyDoubleContext.class,0);
-		}
-		public MyCharContext myChar() {
-			return getRuleContext(MyCharContext.class,0);
-		}
-		public MyStringContext myString() {
-			return getRuleContext(MyStringContext.class,0);
-		}
+		public Expr_parensContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_functionContext extends ExprContext {
 		public FunctionContext function() {
 			return getRuleContext(FunctionContext.class,0);
 		}
-		public ExprContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
+		public Expr_functionContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_judgeContext extends ExprContext {
+		public Token op;
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
 		}
-		@Override public int getRuleIndex() { return RULE_expr; }
+		public Expr_judgeContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_mulContext extends ExprContext {
+		public Token op;
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public Expr_mulContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_identifierContext extends ExprContext {
+		public MyIDContext myID() {
+			return getRuleContext(MyIDContext.class,0);
+		}
+		public Expr_identifierContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_intContext extends ExprContext {
+		public Token op;
+		public MyIntContext myInt() {
+			return getRuleContext(MyIntContext.class,0);
+		}
+		public Expr_intContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_negContext extends ExprContext {
+		public Token op;
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public Expr_negContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_arrayitemContext extends ExprContext {
+		public ArrayItemContext arrayItem() {
+			return getRuleContext(ArrayItemContext.class,0);
+		}
+		public Expr_arrayitemContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_orContext extends ExprContext {
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public Expr_orContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_charContext extends ExprContext {
+		public MyCharContext myChar() {
+			return getRuleContext(MyCharContext.class,0);
+		}
+		public Expr_charContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_stringContext extends ExprContext {
+		public MyStringContext myString() {
+			return getRuleContext(MyStringContext.class,0);
+		}
+		public Expr_stringContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_andContext extends ExprContext {
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public Expr_andContext(ExprContext ctx) { copyFrom(ctx); }
+	}
+	public static class Expr_doubleContext extends ExprContext {
+		public Token op;
+		public MyDoubleContext myDouble() {
+			return getRuleContext(MyDoubleContext.class,0);
+		}
+		public Expr_doubleContext(ExprContext ctx) { copyFrom(ctx); }
 	}
 
 	public final ExprContext expr() throws RecognitionException {
@@ -1971,6 +2053,10 @@ public class simpleCParser extends Parser {
 			switch ( getInterpreter().adaptivePredict(_input,35,_ctx) ) {
 			case 1:
 				{
+				_localctx = new Expr_parensContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
+
 				setState(363);
 				match(T__10);
 				setState(364);
@@ -1981,39 +2067,54 @@ public class simpleCParser extends Parser {
 				break;
 			case 2:
 				{
+				_localctx = new Expr_negContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(367);
-				((ExprContext)_localctx).op = match(T__22);
+				((Expr_negContext)_localctx).op = match(T__22);
 				setState(368);
 				expr(14);
 				}
 				break;
 			case 3:
 				{
+				_localctx = new Expr_identifierContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(369);
 				myID();
 				}
 				break;
 			case 4:
 				{
+				_localctx = new Expr_structitemContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(370);
 				structItem();
 				}
 				break;
 			case 5:
 				{
+				_localctx = new Expr_arrayitemContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(371);
 				arrayItem();
 				}
 				break;
 			case 6:
 				{
+				_localctx = new Expr_intContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(373);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==T__28) {
 					{
 					setState(372);
-					((ExprContext)_localctx).op = match(T__28);
+					((Expr_intContext)_localctx).op = match(T__28);
 					}
 				}
 
@@ -2023,13 +2124,16 @@ public class simpleCParser extends Parser {
 				break;
 			case 7:
 				{
+				_localctx = new Expr_doubleContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(377);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==T__28) {
 					{
 					setState(376);
-					((ExprContext)_localctx).op = match(T__28);
+					((Expr_doubleContext)_localctx).op = match(T__28);
 					}
 				}
 
@@ -2039,18 +2143,27 @@ public class simpleCParser extends Parser {
 				break;
 			case 8:
 				{
+				_localctx = new Expr_charContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(380);
 				myChar();
 				}
 				break;
 			case 9:
 				{
+				_localctx = new Expr_stringContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(381);
 				myString();
 				}
 				break;
 			case 10:
 				{
+				_localctx = new Expr_functionContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(382);
 				function();
 				}
@@ -2070,7 +2183,7 @@ public class simpleCParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,36,_ctx) ) {
 					case 1:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new Expr_andContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(385);
 						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
@@ -2082,7 +2195,7 @@ public class simpleCParser extends Parser {
 						break;
 					case 2:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new Expr_orContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(388);
 						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
@@ -2094,15 +2207,15 @@ public class simpleCParser extends Parser {
 						break;
 					case 3:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new Expr_mulContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(391);
 						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
 						setState(392);
-						((ExprContext)_localctx).op = _input.LT(1);
+						((Expr_mulContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__9) | (1L << T__25) | (1L << T__26))) != 0)) ) {
-							((ExprContext)_localctx).op = (Token)_errHandler.recoverInline(this);
+							((Expr_mulContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 						}
 						else {
 							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
@@ -2115,15 +2228,15 @@ public class simpleCParser extends Parser {
 						break;
 					case 4:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new Expr_addContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(394);
 						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
 						setState(395);
-						((ExprContext)_localctx).op = _input.LT(1);
+						((Expr_addContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !(_la==T__27 || _la==T__28) ) {
-							((ExprContext)_localctx).op = (Token)_errHandler.recoverInline(this);
+							((Expr_addContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 						}
 						else {
 							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
@@ -2136,15 +2249,15 @@ public class simpleCParser extends Parser {
 						break;
 					case 5:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new Expr_judgeContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(397);
 						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(398);
-						((ExprContext)_localctx).op = _input.LT(1);
+						((Expr_judgeContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__29) | (1L << T__30) | (1L << T__31) | (1L << T__32))) != 0)) ) {
-							((ExprContext)_localctx).op = (Token)_errHandler.recoverInline(this);
+							((Expr_judgeContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 						}
 						else {
 							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;

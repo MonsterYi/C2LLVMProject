@@ -154,8 +154,78 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#expr.
-    def visitExpr(self, ctx:simpleCParser.ExprContext):
+    # Visit a parse tree produced by simpleCParser#expr_add.
+    def visitExpr_add(self, ctx:simpleCParser.Expr_addContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_structitem.
+    def visitExpr_structitem(self, ctx:simpleCParser.Expr_structitemContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_parens.
+    def visitExpr_parens(self, ctx:simpleCParser.Expr_parensContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_function.
+    def visitExpr_function(self, ctx:simpleCParser.Expr_functionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_judge.
+    def visitExpr_judge(self, ctx:simpleCParser.Expr_judgeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_mul.
+    def visitExpr_mul(self, ctx:simpleCParser.Expr_mulContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_identifier.
+    def visitExpr_identifier(self, ctx:simpleCParser.Expr_identifierContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_int.
+    def visitExpr_int(self, ctx:simpleCParser.Expr_intContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_neg.
+    def visitExpr_neg(self, ctx:simpleCParser.Expr_negContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_arrayitem.
+    def visitExpr_arrayitem(self, ctx:simpleCParser.Expr_arrayitemContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_or.
+    def visitExpr_or(self, ctx:simpleCParser.Expr_orContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_char.
+    def visitExpr_char(self, ctx:simpleCParser.Expr_charContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_string.
+    def visitExpr_string(self, ctx:simpleCParser.Expr_stringContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_and.
+    def visitExpr_and(self, ctx:simpleCParser.Expr_andContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#expr_double.
+    def visitExpr_double(self, ctx:simpleCParser.Expr_doubleContext):
         return self.visitChildren(ctx)
 
 

@@ -269,12 +269,138 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#expr.
-    def enterExpr(self, ctx:simpleCParser.ExprContext):
+    # Enter a parse tree produced by simpleCParser#expr_add.
+    def enterExpr_add(self, ctx:simpleCParser.Expr_addContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#expr.
-    def exitExpr(self, ctx:simpleCParser.ExprContext):
+    # Exit a parse tree produced by simpleCParser#expr_add.
+    def exitExpr_add(self, ctx:simpleCParser.Expr_addContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_structitem.
+    def enterExpr_structitem(self, ctx:simpleCParser.Expr_structitemContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_structitem.
+    def exitExpr_structitem(self, ctx:simpleCParser.Expr_structitemContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_parens.
+    def enterExpr_parens(self, ctx:simpleCParser.Expr_parensContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_parens.
+    def exitExpr_parens(self, ctx:simpleCParser.Expr_parensContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_function.
+    def enterExpr_function(self, ctx:simpleCParser.Expr_functionContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_function.
+    def exitExpr_function(self, ctx:simpleCParser.Expr_functionContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_judge.
+    def enterExpr_judge(self, ctx:simpleCParser.Expr_judgeContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_judge.
+    def exitExpr_judge(self, ctx:simpleCParser.Expr_judgeContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_mul.
+    def enterExpr_mul(self, ctx:simpleCParser.Expr_mulContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_mul.
+    def exitExpr_mul(self, ctx:simpleCParser.Expr_mulContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_identifier.
+    def enterExpr_identifier(self, ctx:simpleCParser.Expr_identifierContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_identifier.
+    def exitExpr_identifier(self, ctx:simpleCParser.Expr_identifierContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_int.
+    def enterExpr_int(self, ctx:simpleCParser.Expr_intContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_int.
+    def exitExpr_int(self, ctx:simpleCParser.Expr_intContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_neg.
+    def enterExpr_neg(self, ctx:simpleCParser.Expr_negContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_neg.
+    def exitExpr_neg(self, ctx:simpleCParser.Expr_negContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_arrayitem.
+    def enterExpr_arrayitem(self, ctx:simpleCParser.Expr_arrayitemContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_arrayitem.
+    def exitExpr_arrayitem(self, ctx:simpleCParser.Expr_arrayitemContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_or.
+    def enterExpr_or(self, ctx:simpleCParser.Expr_orContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_or.
+    def exitExpr_or(self, ctx:simpleCParser.Expr_orContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_char.
+    def enterExpr_char(self, ctx:simpleCParser.Expr_charContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_char.
+    def exitExpr_char(self, ctx:simpleCParser.Expr_charContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_string.
+    def enterExpr_string(self, ctx:simpleCParser.Expr_stringContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_string.
+    def exitExpr_string(self, ctx:simpleCParser.Expr_stringContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_and.
+    def enterExpr_and(self, ctx:simpleCParser.Expr_andContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_and.
+    def exitExpr_and(self, ctx:simpleCParser.Expr_andContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#expr_double.
+    def enterExpr_double(self, ctx:simpleCParser.Expr_doubleContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#expr_double.
+    def exitExpr_double(self, ctx:simpleCParser.Expr_doubleContext):
         pass
 
 

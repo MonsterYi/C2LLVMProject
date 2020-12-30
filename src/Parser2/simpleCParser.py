@@ -2597,7 +2597,22 @@ class simpleCParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+
+
+        def getRuleIndex(self):
+            return simpleCParser.RULE_expr
+
+     
+        def copyFrom(self, ctx:ParserRuleContext):
+            super().copyFrom(ctx)
+
+
+    class Expr_addContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
             self.op = None # Token
+            self.copyFrom(ctx)
 
         def expr(self, i:int=None):
             if i is None:
@@ -2606,52 +2621,381 @@ class simpleCParser ( Parser ):
                 return self.getTypedRuleContext(simpleCParser.ExprContext,i)
 
 
-        def myID(self):
-            return self.getTypedRuleContext(simpleCParser.MyIDContext,0)
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_add" ):
+                listener.enterExpr_add(self)
 
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_add" ):
+                listener.exitExpr_add(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_add" ):
+                return visitor.visitExpr_add(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_structitemContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
 
         def structItem(self):
             return self.getTypedRuleContext(simpleCParser.StructItemContext,0)
 
 
-        def arrayItem(self):
-            return self.getTypedRuleContext(simpleCParser.ArrayItemContext,0)
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_structitem" ):
+                listener.enterExpr_structitem(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_structitem" ):
+                listener.exitExpr_structitem(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_structitem" ):
+                return visitor.visitExpr_structitem(self)
+            else:
+                return visitor.visitChildren(self)
 
 
-        def myInt(self):
-            return self.getTypedRuleContext(simpleCParser.MyIntContext,0)
+    class Expr_parensContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def expr(self):
+            return self.getTypedRuleContext(simpleCParser.ExprContext,0)
 
 
-        def myDouble(self):
-            return self.getTypedRuleContext(simpleCParser.MyDoubleContext,0)
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_parens" ):
+                listener.enterExpr_parens(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_parens" ):
+                listener.exitExpr_parens(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_parens" ):
+                return visitor.visitExpr_parens(self)
+            else:
+                return visitor.visitChildren(self)
 
 
-        def myChar(self):
-            return self.getTypedRuleContext(simpleCParser.MyCharContext,0)
+    class Expr_functionContext(ExprContext):
 
-
-        def myString(self):
-            return self.getTypedRuleContext(simpleCParser.MyStringContext,0)
-
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
 
         def function(self):
             return self.getTypedRuleContext(simpleCParser.FunctionContext,0)
 
 
-        def getRuleIndex(self):
-            return simpleCParser.RULE_expr
-
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExpr" ):
-                listener.enterExpr(self)
+            if hasattr( listener, "enterExpr_function" ):
+                listener.enterExpr_function(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExpr" ):
-                listener.exitExpr(self)
+            if hasattr( listener, "exitExpr_function" ):
+                listener.exitExpr_function(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitExpr" ):
-                return visitor.visitExpr(self)
+            if hasattr( visitor, "visitExpr_function" ):
+                return visitor.visitExpr_function(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_judgeContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.op = None # Token
+            self.copyFrom(ctx)
+
+        def expr(self):
+            return self.getTypedRuleContext(simpleCParser.ExprContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_judge" ):
+                listener.enterExpr_judge(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_judge" ):
+                listener.exitExpr_judge(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_judge" ):
+                return visitor.visitExpr_judge(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_mulContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.op = None # Token
+            self.copyFrom(ctx)
+
+        def expr(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(simpleCParser.ExprContext)
+            else:
+                return self.getTypedRuleContext(simpleCParser.ExprContext,i)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_mul" ):
+                listener.enterExpr_mul(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_mul" ):
+                listener.exitExpr_mul(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_mul" ):
+                return visitor.visitExpr_mul(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_identifierContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def myID(self):
+            return self.getTypedRuleContext(simpleCParser.MyIDContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_identifier" ):
+                listener.enterExpr_identifier(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_identifier" ):
+                listener.exitExpr_identifier(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_identifier" ):
+                return visitor.visitExpr_identifier(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_intContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.op = None # Token
+            self.copyFrom(ctx)
+
+        def myInt(self):
+            return self.getTypedRuleContext(simpleCParser.MyIntContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_int" ):
+                listener.enterExpr_int(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_int" ):
+                listener.exitExpr_int(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_int" ):
+                return visitor.visitExpr_int(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_negContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.op = None # Token
+            self.copyFrom(ctx)
+
+        def expr(self):
+            return self.getTypedRuleContext(simpleCParser.ExprContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_neg" ):
+                listener.enterExpr_neg(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_neg" ):
+                listener.exitExpr_neg(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_neg" ):
+                return visitor.visitExpr_neg(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_arrayitemContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def arrayItem(self):
+            return self.getTypedRuleContext(simpleCParser.ArrayItemContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_arrayitem" ):
+                listener.enterExpr_arrayitem(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_arrayitem" ):
+                listener.exitExpr_arrayitem(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_arrayitem" ):
+                return visitor.visitExpr_arrayitem(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_orContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def expr(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(simpleCParser.ExprContext)
+            else:
+                return self.getTypedRuleContext(simpleCParser.ExprContext,i)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_or" ):
+                listener.enterExpr_or(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_or" ):
+                listener.exitExpr_or(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_or" ):
+                return visitor.visitExpr_or(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_charContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def myChar(self):
+            return self.getTypedRuleContext(simpleCParser.MyCharContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_char" ):
+                listener.enterExpr_char(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_char" ):
+                listener.exitExpr_char(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_char" ):
+                return visitor.visitExpr_char(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_stringContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def myString(self):
+            return self.getTypedRuleContext(simpleCParser.MyStringContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_string" ):
+                listener.enterExpr_string(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_string" ):
+                listener.exitExpr_string(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_string" ):
+                return visitor.visitExpr_string(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_andContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def expr(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(simpleCParser.ExprContext)
+            else:
+                return self.getTypedRuleContext(simpleCParser.ExprContext,i)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_and" ):
+                listener.enterExpr_and(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_and" ):
+                listener.exitExpr_and(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_and" ):
+                return visitor.visitExpr_and(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class Expr_doubleContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a simpleCParser.ExprContext
+            super().__init__(parser)
+            self.op = None # Token
+            self.copyFrom(ctx)
+
+        def myDouble(self):
+            return self.getTypedRuleContext(simpleCParser.MyDoubleContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterExpr_double" ):
+                listener.enterExpr_double(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitExpr_double" ):
+                listener.exitExpr_double(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExpr_double" ):
+                return visitor.visitExpr_double(self)
             else:
                 return visitor.visitChildren(self)
 
@@ -2671,6 +3015,10 @@ class simpleCParser ( Parser ):
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,35,self._ctx)
             if la_ == 1:
+                localctx = simpleCParser.Expr_parensContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
+
                 self.state = 363
                 self.match(simpleCParser.T__10)
                 self.state = 364
@@ -2680,6 +3028,9 @@ class simpleCParser ( Parser ):
                 pass
 
             elif la_ == 2:
+                localctx = simpleCParser.Expr_negContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
                 self.state = 367
                 localctx.op = self.match(simpleCParser.T__22)
                 self.state = 368
@@ -2687,21 +3038,33 @@ class simpleCParser ( Parser ):
                 pass
 
             elif la_ == 3:
+                localctx = simpleCParser.Expr_identifierContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
                 self.state = 369
                 self.myID()
                 pass
 
             elif la_ == 4:
+                localctx = simpleCParser.Expr_structitemContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
                 self.state = 370
                 self.structItem()
                 pass
 
             elif la_ == 5:
+                localctx = simpleCParser.Expr_arrayitemContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
                 self.state = 371
                 self.arrayItem()
                 pass
 
             elif la_ == 6:
+                localctx = simpleCParser.Expr_intContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
                 self.state = 373
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -2715,6 +3078,9 @@ class simpleCParser ( Parser ):
                 pass
 
             elif la_ == 7:
+                localctx = simpleCParser.Expr_doubleContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
                 self.state = 377
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -2728,16 +3094,25 @@ class simpleCParser ( Parser ):
                 pass
 
             elif la_ == 8:
+                localctx = simpleCParser.Expr_charContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
                 self.state = 380
                 self.myChar()
                 pass
 
             elif la_ == 9:
+                localctx = simpleCParser.Expr_stringContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
                 self.state = 381
                 self.myString()
                 pass
 
             elif la_ == 10:
+                localctx = simpleCParser.Expr_functionContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
                 self.state = 382
                 self.function()
                 pass
@@ -2756,7 +3131,7 @@ class simpleCParser ( Parser ):
                     self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,36,self._ctx)
                     if la_ == 1:
-                        localctx = simpleCParser.ExprContext(self, _parentctx, _parentState)
+                        localctx = simpleCParser.Expr_andContext(self, simpleCParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 385
                         if not self.precpred(self._ctx, 13):
@@ -2769,7 +3144,7 @@ class simpleCParser ( Parser ):
                         pass
 
                     elif la_ == 2:
-                        localctx = simpleCParser.ExprContext(self, _parentctx, _parentState)
+                        localctx = simpleCParser.Expr_orContext(self, simpleCParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 388
                         if not self.precpred(self._ctx, 12):
@@ -2782,7 +3157,7 @@ class simpleCParser ( Parser ):
                         pass
 
                     elif la_ == 3:
-                        localctx = simpleCParser.ExprContext(self, _parentctx, _parentState)
+                        localctx = simpleCParser.Expr_mulContext(self, simpleCParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 391
                         if not self.precpred(self._ctx, 11):
@@ -2801,7 +3176,7 @@ class simpleCParser ( Parser ):
                         pass
 
                     elif la_ == 4:
-                        localctx = simpleCParser.ExprContext(self, _parentctx, _parentState)
+                        localctx = simpleCParser.Expr_addContext(self, simpleCParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 394
                         if not self.precpred(self._ctx, 10):
@@ -2820,7 +3195,7 @@ class simpleCParser ( Parser ):
                         pass
 
                     elif la_ == 5:
-                        localctx = simpleCParser.ExprContext(self, _parentctx, _parentState)
+                        localctx = simpleCParser.Expr_judgeContext(self, simpleCParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 397
                         if not self.precpred(self._ctx, 9):
