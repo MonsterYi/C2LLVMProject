@@ -20,7 +20,7 @@ class MyVisitor(simpleCVisitor):
 
         # 控制llvm生成
         self.module = ir.Module()
-        self.module.triple = "x86_64-pc-linux-gnu"  # llvm.Target.from_default_triple()
+        self.module.triple = "x86_64-pc-windows-msvc"  # llvm.Target.from_default_triple()
         self.module.data_layout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"  # llvm.create_mcjit_compiler(backing_mod, target_machine)
 
         self.block_list = []
@@ -241,25 +241,51 @@ class MyVisitor(simpleCVisitor):
         描述：赋值语句块
         返回：无
         '''
-        builder = self.builder_list[-1]
-        length = ctx.getChildCount()
+        TheBuilder = self.builder_list[-1]
+        Length = ctx.getChildCount()
         IDname = ctx.getChild(0).getText()
         if not '[' in IDname and self.symbol_table.has_item(IDname) == False:
-            #raise SemanticError(ctx=ctx,msg="变量未定义！")
-            pass
+            raise SemanticError(ctx=ctx, msg="变量未定义！")
 
-        #待赋值结果 
-        val = self.visit(ctx.getChild(length - 2))
+        # 待赋值结果
+        ValueToBeAssigned = self.visit(ctx.getChild(Length - 2))
 
-        #遍历全部左边变量赋值
-        tmp = self.need_load
-        self.need_load = False
-        mvar = self.visit(ctx.getChild(0))
-        self.need_load = tmp
+        i = 0
+        Result = {'type': ValueToBeAssigned['type'], 'name': ValueToBeAssigned['name']}
+        # 遍历全部左边变量赋值
+        while i < Length - 2:
+            PreviousNeedLoad = self.need_load
+            self.need_load = False
+            TheVariable = self.visit(ctx.getChild(i))
+            self.need_load = PreviousNeedLoad
 
-        TheValueToBeAssigned = self.assignConvert(val, mvar['type'])
-        builder.store(TheValueToBeAssigned['name'], mvar['name'])
-        return {'type': mvar['type'], 'name': builder.load(mvar['name'])}
+            TheValueToBeAssigned = ValueToBeAssigned
+            TheValueToBeAssigned = self.assignConvert(TheValueToBeAssigned, TheVariable['type'])
+            TheBuilder.store(TheValueToBeAssigned['name'], TheVariable['name'])
+            if i > 0:
+                ReturnVariable = TheBuilder.load(TheVariable['name'])
+                Result = {'type': TheVariable['type'], 'name': ReturnVariable}
+            i += 2
+        return Result
+        # builder = self.builder_list[-1]
+        # length = ctx.getChildCount()
+        # IDname = ctx.getChild(0).getText()
+        # if not '[' in IDname and self.symbol_table.has_item(IDname) == False:
+        #     # raise SemanticError(ctx=ctx,msg="变量未定义！")
+        #     pass
+        #
+        # #待赋值结果
+        # val = self.visit(ctx.getChild(length - 2))
+        #
+        # #遍历全部左边变量赋值
+        # tmp = self.need_load
+        # self.need_load = False
+        # mvar = self.visit(ctx.getChild(0))
+        # self.need_load = tmp
+        #
+        # TheValueToBeAssigned = self.assignConvert(val, mvar['type'])
+        # builder.store(TheValueToBeAssigned['name'], mvar['name'])
+        # return {'type': mvar['type'], 'name': builder.load(mvar['name'])}
 
     def visitReturnBlock(self, ctx: simpleCParser.ReturnBlockContext):
         '''
@@ -457,7 +483,7 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(cond_block)
         cond=self.visit(ctx.getChild(2))
 
-        self.builder_list[-1].cbranch(self.visit(cond['name'], body_block, endwhile_block))
+        self.builder_list[-1].cbranch(cond['name'], body_block, endwhile_block)
         self.prepareBlock(body_block)
         self.visit(ctx.getChild(5))
 
@@ -480,7 +506,7 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(cond_block)
         cond = self.visit(ctx.getChild(4))
 
-        self.builder_list[-1].cbranch(self.visit(cond['name'], body_block, endfor_block))
+        self.builder_list[-1].cbranch(cond['name'], body_block, endfor_block)
         self.prepareBlock(body_block)
         # visit body
         self.visit(ctx.getChild(9))
@@ -500,7 +526,7 @@ class MyVisitor(simpleCVisitor):
         self.need_load = False
         ID = self.visit(ctx.getChild(0))
         expr = self.visit(ctx.getChild(2))
-        expr = self.assignConvert(expr['name'], ID['name'])
+        expr = self.assignConvert(expr, ID['name'])
         self.builder_list[-1].store(expr['name'], ID['name'])
         self.need_load = cache
         # handle nested assignments
@@ -523,6 +549,7 @@ class MyVisitor(simpleCVisitor):
             self.visit(ctx.getChild(4))
 
     def assignConvert(self, src, dest_type):
+        print(src["type"],dest_type)
         if src['type'] == dest_type:
             pass
         elif src['type'] == bool and self.isInteger(dest_type):
