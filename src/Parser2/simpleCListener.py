@@ -116,39 +116,39 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#mFunction.
-    def enterMFunction(self, ctx:simpleCParser.MFunctionContext):
+    # Enter a parse tree produced by simpleCParser#myFunction.
+    def enterMyFunction(self, ctx:simpleCParser.MyFunctionContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#mFunction.
-    def exitMFunction(self, ctx:simpleCParser.MFunctionContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#params.
-    def enterParams(self, ctx:simpleCParser.ParamsContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#params.
-    def exitParams(self, ctx:simpleCParser.ParamsContext):
+    # Exit a parse tree produced by simpleCParser#myFunction.
+    def exitMyFunction(self, ctx:simpleCParser.MyFunctionContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#param.
-    def enterParam(self, ctx:simpleCParser.ParamContext):
+    # Enter a parse tree produced by simpleCParser#defineParams.
+    def enterDefineParams(self, ctx:simpleCParser.DefineParamsContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#param.
-    def exitParam(self, ctx:simpleCParser.ParamContext):
+    # Exit a parse tree produced by simpleCParser#defineParams.
+    def exitDefineParams(self, ctx:simpleCParser.DefineParamsContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#funcBody.
-    def enterFuncBody(self, ctx:simpleCParser.FuncBodyContext):
+    # Enter a parse tree produced by simpleCParser#defineParam.
+    def enterDefineParam(self, ctx:simpleCParser.DefineParamContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#funcBody.
-    def exitFuncBody(self, ctx:simpleCParser.FuncBodyContext):
+    # Exit a parse tree produced by simpleCParser#defineParam.
+    def exitDefineParam(self, ctx:simpleCParser.DefineParamContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#functionBody.
+    def enterFunctionBody(self, ctx:simpleCParser.FunctionBodyContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#functionBody.
+    def exitFunctionBody(self, ctx:simpleCParser.FunctionBodyContext):
         pass
 
 
@@ -170,12 +170,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#initialBlock.
-    def enterInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
+    # Enter a parse tree produced by simpleCParser#defineBlock.
+    def enterDefineBlock(self, ctx:simpleCParser.DefineBlockContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#initialBlock.
-    def exitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
+    # Exit a parse tree produced by simpleCParser#defineBlock.
+    def exitDefineBlock(self, ctx:simpleCParser.DefineBlockContext):
         pass
 
 
