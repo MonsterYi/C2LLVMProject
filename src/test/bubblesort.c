@@ -26,5 +26,6 @@ int main() {
 	for (i = 0; i < len; i = i + 1){
 		printf("%d ", A[i]);
 	}
+	printf("\n");
 	return 0;
 }
