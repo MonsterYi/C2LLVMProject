@@ -559,30 +559,26 @@ class MyVisitor(simpleCVisitor):
 
     ####### HYL #############
     # 类型转换至布尔型
-    def toBoolean(self, manipulate_index, not_equal=True):
+    def toBoolean(self, var, not_equal=True):
         builder = self.builder_list[-1]
         operator = "==" if not_equal else "!="
         return_dict = {
             'type': bool,
             'const': False
         }
-        if manipulate_index['type'] == byte1 or manipulate_index['type'] == int32:
-            return_dict["name"] = builder.icmp_signed(operator, manipulate_index['name'],
-                                                      ir.Constant(manipulate_index['type'], 0))
+        if var['type'] == byte1 or var['type'] == int32:
+            return_dict["name"] = builder.icmp_signed(operator, var['name'],
+                                                      ir.Constant(var['type'], 0))
             return return_dict
-        elif manipulate_index['type'] == single:
-            return_dict["name"] = builder.fcmp_ordered(operator, manipulate_index['name'], ir.Constant(single, 0))
+        elif var['type'] == single:
+            return_dict["name"] = builder.fcmp_ordered(operator, var['name'], ir.Constant(single, 0))
             return return_dict
-        return manipulate_index
+        return var
 
     def visitNeg(self, ctx: simpleCParser.NegContext):
         """
         expr : op = '!' expr
         """
-        # TODO
-        #RealReturnValue = self.visit(ctx.getChild(1))
-        #RealReturnValue = self.toBoolean(RealReturnValue, True)
-        # res 未返回
         return self.visitChildren(ctx)
 
     def visitOR(self, ctx: simpleCParser.ORContext):
@@ -659,7 +655,7 @@ class MyVisitor(simpleCVisitor):
         else:
             # TODO
             pass
-            # raise SemanticError(ctx=ctx, msg="类型不匹配")
+            # raise Error(ctx=ctx, msg="类型不匹配")
         return expr1, expr2
 
     def get_return_dict(self, ctx):
@@ -703,11 +699,10 @@ class MyVisitor(simpleCVisitor):
         expr : (op='-')? single
         """
         if ctx.getChild(0).getText() == '-':
-            mid_index = self.visit(ctx.getChild(1))
-            builder = self.builder_list[-1]
+            mid_item = self.visit(ctx.getChild(1))
             return {
-                'type': mid_index['type'],
-                'name': builder.neg(mid_index['name'])
+                'type': mid_item['type'],
+                'name': self.builder_list[-1].neg(mid_item['name'])
             }
         return self.visit(ctx.getChild(0))
 
@@ -728,11 +723,10 @@ class MyVisitor(simpleCVisitor):
         (op='-')? int
         """
         if ctx.getChild(0).getText() == '-':
-            mid_index = self.visit(ctx.getChild(1))
-            builder = self.builder_list[-1]
+            mid_item= self.visit(ctx.getChild(1))
             return {
-                'type': mid_index['type'],
-                'name': builder.neg(mid_index['name'])
+                'type': mid_item['type'],
+                'name': self.builder_list[-1].neg(mid_item['name'])
             }
         return self.visit(ctx.getChild(0))
 
@@ -780,7 +774,6 @@ class MyVisitor(simpleCVisitor):
 
         if isinstance(res['type'], ir.types.ArrayType):
             builder = self.builder_list[-1]
-
             require_load = self.need_load
             self.need_load = True
             index = self.visit(ctx.getChild(2))  # subscript
@@ -796,7 +789,7 @@ class MyVisitor(simpleCVisitor):
             return return_dict
         else:  # error!
             pass  # TODO
-            # raise SemanticError(ctx=ctx, msg="类型错误")
+            # raise Error(ctx=ctx, msg="类型错误")
 
     def visitArgument(self, ctx: simpleCParser.ArgumentContext):
         """

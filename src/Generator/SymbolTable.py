@@ -1,6 +1,3 @@
-ERROR_REDEFINATION = "Type Redefination"  # 重定义
-
-
 class SymbolTable:
     
     def __init__(self):
@@ -16,7 +13,7 @@ class SymbolTable:
     
     def insert_item(self, key, val):
         if key in self.dic_list[self.cur_scope]:
-            return {"result": "fail", "reason": ERROR_REDEFINATION}
+            return {"result": "fail", "error": "Type Redefination" }
         self.dic_list[self.cur_scope][key] = val
         return {'result': 'success'}
 
