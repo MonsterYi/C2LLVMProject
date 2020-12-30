@@ -13,25 +13,25 @@ myARRAY: myID '[' myINT ']';
 myARRAYITEM: myID '[' expr ']';
 myVOID: 'void';
 
-program: (include)* ( initialBlock | mFunction)*;
+program: (include)* ( defineBlock | myFunction)*;
 include: '#include' '<' myLIB '>';
 
 //函数定义
-mFunction: (myTYPE | myVOID) myID '(' params ')' '{' funcBody '}';
+myFunction: (myTYPE | myVOID) myID '(' defineParams ')' '{' functionBody '}';
 
 //函数参数
-params: param (',' param)* |;
-param: myTYPE myID;
+defineParams: defineParam (',' defineParam)* |;
+defineParam: myTYPE myID;
 
 //函数体
-funcBody: body returnBlock;
+functionBody: body returnBlock;
 
 //语句块/函数快
 body: (block | func ';')*;
 
 //语句块
 block:
-	initialBlock
+	defineBlock
 	| assignBlock
 	| ifBlocks
 	| whileBlock
@@ -39,7 +39,7 @@ block:
 	| returnBlock;
 
 //初始化语句
-initialBlock: baseInitialBlock | arrayInitialBlock;
+defineBlock: baseInitialBlock | arrayInitialBlock;
 baseInitialBlock: (myTYPE) myID ('=' expr)? (
 		',' myID ('=' expr)?
 	)* ';';
@@ -89,14 +89,9 @@ expr:
 
 //函数调用
 func: (printfFunction | scanfFunction | selfDefinedFunction);
-
-//printf
 printfFunction: 'printf' '(' STRING (',' expr)* ')';
-
-//scanf
 scanfFunction: 'scanf' '(' STRING (',' ('&')? (ID))* ')';
-
-//Selfdefined
+//自定义函数调用
 selfDefinedFunction:
 	ID '(' ((argument | ID) (',' (argument | ID))*)? ')';
 
