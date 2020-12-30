@@ -65,11 +65,11 @@ forBlock:
 		'{' body '}'
 		| ';'
 	);
-forDefineBlock: ID '=' expr (',' forDefineBlock)? |;
-forIteratorBlock: ID '=' expr (',' forIteratorBlock)? |;
+forDefineBlock: myID '=' expr (',' forDefineBlock)? |;
+forIteratorBlock: myID '=' expr (',' forIteratorBlock)? |;
 
 //return 语句
-returnBlock: 'return' (INT | ID)? ';';
+returnBlock: 'return' (myINT | myID)? ';';
 
 expr:
 	'(' expr ')'												# expr_parens
@@ -89,10 +89,10 @@ expr:
 
 //函数调用
 func: (printfFunction | scanfFunction | selfDefinedFunction);
-printfFunction: 'printf' '(' STRING (',' expr)* ')';
-scanfFunction: 'scanf' '(' STRING (',' ('&')? (ID))* ')';
+printfFunction: 'printf' '(' mySTRING (',' expr)* ')';
+scanfFunction: 'scanf' '(' mySTRING (',' ('&')? (myID))* ')';
 //自定义函数调用
 selfDefinedFunction:
-	ID '(' ((argument | ID) (',' (argument | ID))*)? ')';
+	myID '(' ((argument | myID) (',' (argument | myID))*)? ')';
 
-argument: INT | DOUBLE | CHAR | STRING;
+argument: myINT | myDOUBLE | myCHAR | mySTRING;
