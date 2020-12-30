@@ -27,6 +27,8 @@ class MyVisitor(simpleCVisitor):
         self.func_list = dict()
         self.cur_func = ''
         self.constant = 0
+        self.need_load = True
+        self.symbol_table = SymbolTable()
 
     def visitProg(self, ctx: simpleCParser.ProgContext):
         '''
