@@ -17,19 +17,18 @@ class MyVisitor(simpleCVisitor):
     def __init__(self):
         super(simpleCVisitor, self).__init__()
 
-        #控制llvm生成
+        # 控制llvm生成
         self.module = ir.Module()
-        self.module.triple = "x86_64-pc-linux-gnu" # llvm.Target.from_default_triple()
-        self.module.data_layout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128" # llvm.create_mcjit_compiler(backing_mod, target_machine)
-        
+        self.module.triple = "x86_64-pc-linux-gnu"  # llvm.Target.from_default_triple()
+        self.module.data_layout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"  # llvm.create_mcjit_compiler(backing_mod, target_machine)
+
         self.block_list = []
         self.builder_list = []
         self.func_list = dict()
         self.cur_func = ''
         self.constant = 0
 
-
-    def visitProg(self, ctx:simpleCParser.ProgContext):
+    def visitProg(self, ctx: simpleCParser.ProgContext):
         '''
         语法规则：prog :(include)* (initialBlock|arrayInitBlock|structInitBlock|mStructDef|mFunction)*;
         描述：代码主文件
@@ -38,37 +37,37 @@ class MyVisitor(simpleCVisitor):
         for i in range(0, ctx.getChildCount()):
             self.visit(ctx.getChild(i))
 
-    #函数相关函数
-    def visitMFunction(self, ctx:simpleCParser.MFunctionContext):
+    # 函数相关函数
+    def visitMFunction(self, ctx: simpleCParser.MFunctionContext):
 
         '''
         语法规则：mFunction : (mType|mVoid|mStruct) mID '(' params ')' '{' funcBody '}';
         描述：函数的定义
         返回：无
         '''
-        #获取函数名 todo
-        func_name = ctx.getChild(1).getText() # func name
-        
-        #获取参数列表
-        para_list = self.visit(ctx.getChild(3)) # func params
+        # 获取函数名 todo
+        func_name = ctx.getChild(1).getText()  # func name
 
-        #根据返回值，函数名称和参数生成llvm函数
+        # 获取参数列表
+        para_list = self.visit(ctx.getChild(3))  # func params
+
+        # 根据返回值，函数名称和参数生成llvm函数
         ParameterTypeList = []
         for i in range(len(para_list)):
             ParameterTypeList.append(para_list[i]['type'])
         LLVMFunctionType = ir.FunctionType(self.visit(ctx.getChild(0)), ParameterTypeList)
-        LLVMFunction = ir.Function(self.module, LLVMFunctionType, name = func_name)
+        LLVMFunction = ir.Function(self.module, LLVMFunctionType, name=func_name)
 
-        #存储函数的变量        
+        # 存储函数的变量
         for i in range(len(para_list)):
             LLVMFunction.args[i].name = para_list[i]['IDname']
 
-        #存储函数的block
-        TheBlock = LLVMFunction.append_basic_block(name = func_name + '.entry')
+        # 存储函数的block
+        TheBlock = LLVMFunction.append_basic_block(name=func_name + '.entry')
 
-        #判断重定义，存储函数
+        # 判断重定义，存储函数
         if func_name in self.func_list:
-            #raise SemanticError(ctx=ctx,msg="函数重定义错误！")
+            # raise SemanticError(ctx=ctx,msg="函数重定义错误！")
             pass
         else:
             self.func_list[func_name] = LLVMFunction
@@ -77,11 +76,11 @@ class MyVisitor(simpleCVisitor):
         self.block_list.append(TheBlock)
         self.builder_list.append(TheBuilder)
 
-        #进一层
+        # 进一层
         self.cur_func = func_name
-        #self.SymbolTable.EnterScope()
+        # self.SymbolTable.EnterScope()
 
-        #存储函数的变量
+        # 存储函数的变量
         for i in range(len(para_list)):
             NewVariable = TheBuilder.alloca(para_list[i]['type'])
             TheBuilder.store(LLVMFunction.args[i], NewVariable)
@@ -90,20 +89,20 @@ class MyVisitor(simpleCVisitor):
             TheVariable["Name"] = NewVariable
             TheResult = self.SymbolTable.AddItem(para_list[i]['IDname'], TheVariable)
             if TheResult["result"] != "success":
-                #raise SemanticError(ctx=ctx,msg=TheResult["reason"])
+                # raise SemanticError(ctx=ctx,msg=TheResult["reason"])
                 pass
 
-        #处理函数body
-        self.visit(ctx.getChild(6)) # func body
+        # 处理函数body
+        self.visit(ctx.getChild(6))  # func body
 
-        #处理完毕，退一层
+        # 处理完毕，退一层
         self.cur_func = ''
         self.block_list.pop()
         self.builder_list.pop()
-        #self.SymbolTable.QuitScope()
+        # self.SymbolTable.QuitScope()
         return
 
-    def visitMType(self, ctx:simpleCParser.MTypeContext):
+    def visitMType(self, ctx: simpleCParser.MTypeContext):
         '''
         语法规则：mType : 'int'| 'double'| 'char'| 'string';
         描述：类型主函数
@@ -117,7 +116,7 @@ class MyVisitor(simpleCVisitor):
             return double
         return void
 
-    def visitParams(self, ctx:simpleCParser.ParamsContext):
+    def visitParams(self, ctx: simpleCParser.ParamsContext):
         '''
         语法规则：params : param (','param)* |;
         描述：函数的参数列表
@@ -133,20 +132,20 @@ class MyVisitor(simpleCVisitor):
             ParameterList.append(NewParameter)
             i += 2
         return ParameterList
-    
-    def visitFuncBody(self, ctx:simpleCParser.FuncBodyContext):
+
+    def visitFuncBody(self, ctx: simpleCParser.FuncBodyContext):
         '''
         语法规则：funcBody : body returnBlock;
         描述：函数体
         返回：无
         '''
-        #self.SymbolTable.EnterScope()
+        # self.SymbolTable.EnterScope()
         for index in range(ctx.getChildCount()):
             self.visit(ctx.getChild(index))
-        #self.SymbolTable.QuitScope()
+        # self.SymbolTable.QuitScope()
         return
 
-    def visitBody(self, ctx:simpleCParser.BodyContext):
+    def visitBody(self, ctx: simpleCParser.BodyContext):
         '''
         语法规则：body : (block | func';')*;
         描述：语句块/函数块
@@ -158,35 +157,34 @@ class MyVisitor(simpleCVisitor):
                 break
         return
 
-    def visitReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
+    def visitReturnBlock(self, ctx: simpleCParser.ReturnBlockContext):
         '''
         语法规则：returnBlock : 'return' (mINT|mID)? ';';
         描述：return语句块
         返回：无
         '''
-        #返回空
+        # 返回空
         if ctx.getChildCount() == 2:
             RealReturnValue = self.builder_list[-1].ret_void()
             JudgeTruth = False
             return {
-                    'type': void,
-                    'const': JudgeTruth,
-                    'name': RealReturnValue
+                'type': void,
+                'const': JudgeTruth,
+                'name': RealReturnValue
             }
 
-        #访问返回值
+        # 访问返回值
         ReturnIndex = self.visit(ctx.getChild(1))
         RealReturnValue = self.builder_list[-1].ret(ReturnIndex['name'])
         JudgeTruth = False
         return {
-                'type': void,
-                'const': JudgeTruth,
-                'name': RealReturnValue
+            'type': void,
+            'const': JudgeTruth,
+            'name': RealReturnValue
         }
 
-    
-    #调用函数相关函数
-    def visitFunc(self, ctx:simpleCParser.FuncContext):
+    # 调用函数相关函数
+    def visitFunc(self, ctx: simpleCParser.FuncContext):
         '''
         语法规则：func : (strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc);
         描述：函数
@@ -194,30 +192,30 @@ class MyVisitor(simpleCVisitor):
         '''
         return self.visit(ctx.getChild(0))
 
-    def visitPrintfFunc(self, ctx:simpleCParser.PrintfFuncContext):
+    def visitPrintfFunc(self, ctx: simpleCParser.PrintfFuncContext):
         '''
         语法规则：printfFunc : 'printf' '(' (mSTRING | mID) (','expr)* ')';
         描述：printf函数
         返回：函数返回值
-        '''        
+        '''
         if 'printf' in self.func_list:
             printf = self.func_list['printf']
         else:
-            printfType = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg = True)
-            printf = ir.Function(self.module, printfType, name = "printf")
+            printfType = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg=True)
+            printf = ir.Function(self.module, printfType, name="printf")
             self.func_list['printf'] = printf
 
         TheBuilder = self.builder_list[-1]
         zero = ir.Constant(int32, 0)
 
-        #就一个变量
+        # 就一个变量
         if ctx.getChildCount() == 4:
-            ParameterInfo = self.visit(ctx.getChild(2)) 
-            Argument = TheBuilder.gep(ParameterInfo['name'], [zero, zero], inbounds = True)
+            ParameterInfo = self.visit(ctx.getChild(2))
+            Argument = TheBuilder.gep(ParameterInfo['name'], [zero, zero], inbounds=True)
             ReturnVariableName = TheBuilder.call(printf, [Argument])
         else:
             ParameterInfo = self.visit(ctx.getChild(2))
-            Arguments = [TheBuilder.gep(ParameterInfo['name'], [zero, zero], inbounds = True)]
+            Arguments = [TheBuilder.gep(ParameterInfo['name'], [zero, zero], inbounds=True)]
 
             Length = ctx.getChildCount()
             i = 4
@@ -229,7 +227,7 @@ class MyVisitor(simpleCVisitor):
         Result = {'type': int32, 'name': ReturnVariableName}
         return Result
 
-    def visitMINT(self, ctx:simpleCParser.MINTContext):
+    def visitMINT(self, ctx: simpleCParser.MINTContext):
         '''
         语法规则：mINT : INT;
         描述：int
@@ -237,12 +235,12 @@ class MyVisitor(simpleCVisitor):
         '''
         JudgeReg = True
         return {
-                'type': int32,
-                'const': JudgeReg,
-                'name': ir.Constant(int32, int(ctx.getText()))
+            'type': int32,
+            'const': JudgeReg,
+            'name': ir.Constant(int32, int(ctx.getText()))
         }
-        
-    def visitMSTRING(self, ctx:simpleCParser.MSTRINGContext):
+
+    def visitMSTRING(self, ctx: simpleCParser.MSTRINGContext):
         '''
         语法规则：mSTRING : STRING;
         描述：string
@@ -255,25 +253,39 @@ class MyVisitor(simpleCVisitor):
         ProcessIndex += '\0'
         Len = len(bytearray(ProcessIndex, 'utf-8'))
         JudgeReg = False
-        RealReturnValue = ir.GlobalVariable(self.module, ir.ArrayType(int8, Len), ".str%d"%MarkIndex)
+        RealReturnValue = ir.GlobalVariable(self.module, ir.ArrayType(int8, Len), ".str%d" % MarkIndex)
         RealReturnValue.global_constant = True
         RealReturnValue.initializer = ir.Constant(ir.ArrayType(int8, Len), bytearray(ProcessIndex, 'utf-8'))
         return {
-                'type': ir.ArrayType(int8, Len),
-                'const': JudgeReg,
-                'name': RealReturnValue
+            'type': ir.ArrayType(int8, Len),
+            'const': JudgeReg,
+            'name': RealReturnValue
         }
-    
-    #每人在自己线下面写
+
+    # 每人在自己线下面写
     ####### MHY #############
     # Visit a parse tree produced by simpleCParser#condition.
     def visitCondition(self, ctx: simpleCParser.ConditionContext):
 
         return self.visitChildren(ctx)
 
-
     ####### HYL #############
-
+    # 类型转换至布尔型
+    def toBoolean(self, manipulate_index, not_equal=True):
+        builder = self.builder_list[-1]
+        operator = "==" if not_equal else "!="
+        return_dict = {
+            'type': int1,
+            'const': False
+        }
+        if manipulate_index['type'] == int8 or manipulate_index['type'] == int32:
+            return_dict["name"] = builder.icmp_signed(operator, manipulate_index['name'],
+                                                      ir.Constant(manipulate_index['type'], 0))
+            return return_dict
+        elif manipulate_index['type'] == single:
+            return_dict["name"] = builder.fcmp_ordered(operator, manipulate_index['name'], ir.Constant(single, 0))
+            return return_dict
+        return manipulate_index
 
     def save(self, filename):
         """
@@ -296,8 +308,8 @@ def generate(input_filename, output_filename):
     stream = CommonTokenStream(lexer)
     parser = simpleCParser(stream)
     parser.removeErrorListeners()
-    #errorListener = syntaxErrorListener()
-    #parser.addErrorListener(errorListener)
+    # errorListener = syntaxErrorListener()
+    # parser.addErrorListener(errorListener)
 
     tree = parser.prog()
     v = MyVisitor()
