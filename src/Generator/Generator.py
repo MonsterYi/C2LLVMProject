@@ -370,17 +370,15 @@ class MyVisitor(simpleCVisitor):
         }
 
     def visitMSTRING(self, ctx: simpleCParser.MSTRINGContext):
-        '''
-        语法规则：mSTRING : STRING;
-        描述：string
-        返回：无
-        '''
+        """
+        string : string;
+        """
         mstr = ctx.getText().replace('\\n', '\n')
         mstr = mstr[1:-1]
         mstr += '\0'
         length = len(bytearray(mstr, 'utf-8'))
-        ret = ir.GlobalVariable(self.module, ir.ArrayType(int8, length), ".str%d" % self.constant)
-        self.constant += 1
+        ret = ir.GlobalVariable(self.module, ir.ArrayType(int8, length), ".str%d" % self.constants)
+        self.constants += 1
         ret.global_constant = True
         ret.initializer = ir.Constant(ir.ArrayType(int8, length), bytearray(mstr, 'utf-8'))
         return {
@@ -795,27 +793,6 @@ class MyVisitor(simpleCVisitor):
             'type': int8,
             'const': True,
             'name': ir.Constant(int8, ord(ctx.getText()[1]))
-        }
-
-    def visitMSTRING(self, ctx: simpleCParser.MSTRINGContext):
-        """
-        语法规则：mSTRING : STRING;
-        描述：string
-        返回：无
-        """
-        mark_index = self.constants
-        self.constants += 1
-        process_index = ctx.getText().replace('\\n', '\n')
-        process_index = process_index[1:-1]
-        process_index += '\0'
-        length = len(bytearray(process_index, 'utf-8'))
-        ret_val = ir.GlobalVariable(self.module, ir.ArrayType(int8, length), ".str%d" % mark_index)
-        ret_val.global_constant = True
-        ret_val.initializer = ir.Constant(ir.ArrayType(int8, length), bytearray(process_index, 'utf-8'))
-        return {
-            'type': ir.ArrayType(int8, length),
-            'const': False,
-            'name': ret_val
         }
 
     def save(self, filename):
