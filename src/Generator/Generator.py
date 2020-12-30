@@ -41,7 +41,7 @@ class MyVisitor(simpleCVisitor):
             self.visit(ctx.getChild(i))
 
     # 函数相关函数
-    def visitMFunction(self, ctx:simpleCParser.MFunctionContext):
+    def visitMyFunction(self, ctx:simpleCParser.MyFunctionContext):
 
         '''
         mFunction: (myTYPE | myVOID) myID '(' params ')' '{' funcBody '}';
@@ -96,7 +96,7 @@ class MyVisitor(simpleCVisitor):
             return single
         return void
 
-    def visitParams(self, ctx:simpleCParser.ParamsContext):
+    def visitDefineParams(self, ctx:simpleCParser.DefineParamsContext):
         '''
         params: param (',' param)* |;
         '''
@@ -106,7 +106,7 @@ class MyVisitor(simpleCVisitor):
             para_list.append(self.visit(ctx.getChild(i)))
         return para_list
 
-    def visitParam(self, ctx:simpleCParser.ParamContext):
+    def visitDefineParam(self, ctx:simpleCParser.DefineParamContext):
         '''
         param: myTYPE myID;
         '''
@@ -115,7 +115,7 @@ class MyVisitor(simpleCVisitor):
             'name': ctx.getChild(1).getText()
         }
 
-    def visitFuncBody(self, ctx: simpleCParser.FuncBodyContext):
+    def visitFunctionBody(self, ctx:simpleCParser.FunctionBodyContext):
         '''
         funcBody: body returnBlock;
         '''
@@ -150,7 +150,7 @@ class MyVisitor(simpleCVisitor):
             self.visit(ctx.getChild(i))
         return
 
-    def visitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
+    def visitDefineBlock(self, ctx:simpleCParser.DefineBlockContext):
         '''
         initialBlock: baseInitialBlock | arrayInitialBlock;
         '''
@@ -823,7 +823,7 @@ def generate(input_filename, output_filename):
     # errorListener = syntaxErrorListener()
     # parser.addErrorListener(errorListener)
 
-    tree = parser.prog()
+    tree = parser.program()
     v = MyVisitor()
     v.visit(tree)
     v.save(output_filename)
