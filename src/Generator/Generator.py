@@ -116,7 +116,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitFunctionParamDef(self, ctx:simpleCParser.FunctionParamDefContext):
         '''
-        functionParamDef: '*'? (myType | struct) myID;
+        functionParamDef: (myType | struct) myID;
         '''
         return {
             'type': self.visit(ctx.getChild(0)),
