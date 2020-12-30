@@ -31,6 +31,7 @@ class MyVisitor(simpleCVisitor):
         self.need_load = True
         self.cur_endif_block=None
         self.symbol_table = SymbolTable()
+        self.need_load = True
 
     def visitProg(self, ctx: simpleCParser.ProgContext):
         '''
@@ -451,6 +452,7 @@ class MyVisitor(simpleCVisitor):
         """
         expr : op = '!' expr
         """
+        # TODO
         #RealReturnValue = self.visit(ctx.getChild(1))
         #RealReturnValue = self.toBoolean(RealReturnValue, True)
         # res 未返回
@@ -501,14 +503,193 @@ class MyVisitor(simpleCVisitor):
         return self.visit(ctx.getChild(0))
 
     def visitString(self, ctx: simpleCParser.StringContext):
-        '''
+        """
         expr : string
-        '''
+        """
         return self.visit(ctx.getChild(0))
 
     def isInteger(self, v_type):
         return hasattr(v_type, 'width')
+
+    def exprConvert(self, Index1, Index2):
+        if Index1['type'] == Index2['type']:
+            return Index1, Index2
+        if self.isInteger(Index1['type']) and self.isInteger(Index2['type']):
+            if Index1['type'].width < Index2['type'].width:
+                if Index1['type'].width == 1:
+                    Index1 = self.convertIIZ(Index1, Index2['type'])
+                else:
+                    Index1 = self.convertIIS(Index1, Index2['type'])
+            else:
+                if Index2['type'].width == 1:
+                    Index2 = self.convertIIZ(Index2, Index1['type'])
+                else:
+                    Index2 = self.convertIIS(Index2, Index1['type'])
+        elif self.isInteger(Index1['type']) and Index2['type'] == double:
+            Index1 = convertIDS(Index1, Index2['type'])
+        elif self.isInteger(Index2['type']) and Index1['type'] == double:
+            Index2 = convertIDS(Index2, Index1['type'])
+        else:
+            raise SemanticError(ctx=ctx, msg="类型不匹配")
+        return Index1, Index2
+
+    def get_return_dict(self, ctx):
+        index1, index2 = self.exprConvert(self.visit(ctx.getChild(0)), self.visit(ctx.getChild(2)))
+        return_dict = {
+            'type': index1['type'],
+            'const': False
+        }
+        return index1, index2, return_dict
+
+    def visitMulDiv(self, ctx: simpleCParser.MulDivContext):
+        """
+        expr : expr op=('*' | '/' | '%') expr
+        """
+        builder = self.builder_list[-1]
+        index1, index2, return_dict = self.get_return_dict(ctx)
+        operator = ctx.getChild(1).getText()
+        if operator == '*':
+            return_dict["name"] = builder.mul(index1['name'], index2['name'])
+        elif operator == '/':
+            return_dict["name"] = builder.sdiv(index1['name'], index2['name'])
+        elif operator == '%':
+            return_dict["name"] = builder.srem(index1['name'], index2['name'])
+        return return_dict
+
+    def visitAddSub(self, ctx: simpleCParser.AddSubContext):
+        """
+        expr op=('+' | '-') expr
+        """
+        builder = self.builder_list[-1]
+        index1, index2, return_dict = self.get_return_dict(ctx)
+        operator = ctx.getChild(1).getText()
+        if operator == '+':
+            return_dict["name"] = builder.add(index1['name'], index2['name'])
+        elif operator == '-':
+            return_dict["name"] = builder.sub(index1['name'], index2['name'])
+        return return_dict
+
+    def visitSingle(self, ctx: simpleCParser.DoubleContext):
+        """
+        expr : (op='-')? single
+        """
+        if ctx.getChild(0).getText() == '-':
+            mid_index = self.visit(ctx.getChild(1))
+            builder = self.builder_list[-1]
+            return {
+                'type': mid_index['type'],
+                'name': builder.neg(mid_index['name'])
+            }
+        return self.visit(ctx.getChild(0))
+
+    def visitFunction(self, ctx: simpleCParser.FunctionContext):
+        """
+        expr : func
+        """
+        return self.visit(ctx.getChild(0))
+
+    def visitChar(self, ctx: simpleCParser.CharContext):
+        """
+        expr : char
+        """
+        return self.visit(ctx.getChild(0))
+
+    def visitInt(self, ctx: simpleCParser.IntContext):
+        """
+        (op='-')? int
+        """
+        if ctx.getChild(0).getText() == '-':
+            mid_index = self.visit(ctx.getChild(1))
+            builder = self.builder_list[-1]
+            return {
+                'type': mid_index['type'],
+                'name': builder.neg(mid_index['name'])
+            }
+        return self.visit(ctx.getChild(0))
+
+    def visitMVoid(self, ctx: simpleCParser.MVoidContext):
+        """
+        Void : 'void';
+        """
+        return void
+
+    def visitMArray(self, ctx: simpleCParser.MArrayContext):
+        """
+        Array : identifier '[' int ']';
+        """
+        return {
+            'IDname': ctx.getChild(0).getText(),
+            'length': int(ctx.getChild(2).getText())
+        }
+
+    def visitJudge(self, ctx: simpleCParser.JudgeContext):
+        """
+        expr : expr op=('==' | '!=' | '<' | '<=' | '>' | '>=') expr
+        """
+        builder = self.builder_list[-1]
+        index1, index2 = self.exprConvert(self.visit(ctx.getChild(0)), self.visit(ctx.getChild(2)))
+        return_dict = {
+            'type': index1['type'],
+            'const': False
+        }
+        operator = ctx.getChild(1).getText()
+        if index1['type'] == single:
+            return_dict["name"] = builder.fcmp_ordered(operator, index1['name'], index2['name'])
+        elif self.isInteger(index1['type']):
+            return_dict["name"] = builder.icmp_signed(operator, index1['name'], index2['name'])
+        return return_dict
+
+    # 变量和变量类型相关函数
+    def visitMType(self, ctx: simpleCParser.MTypeContext):
+        """
+        Type : 'int'| 'single'| 'char'| 'string';
+        """
+        v_type = ctx.getText()
+        if v_type == 'int':
+            return int32
+        if v_type == 'char':
+            return int8
+        if v_type == 'single':
+            return single
+        return void
+
+    def visitArrayItem(self, ctx: simpleCParser.ArrayItemContext):
+        """
+        expr : Array_Item
+        """
+        require_load = self.WhetherNeedLoad
+        self.need_load = False
+        res = self.visit(ctx.getChild(0))  # mID
+        self.need_load = require_load
+
+        if isinstance(res['type'], ir.types.ArrayType):
+            builder = self.builder_list[-1]
+
+            require_load = self.WhetherNeedLoad
+            self.need_load = True
+            index = self.visit(ctx.getChild(2))  # subscript
+            self.need_load = require_load
+            return_dict = {
+                'type': res['type'].element,
+                'const': False
+            }
+            zero = ir.Constant(int32, 0)
+            return_dict["name"] = builder.gep(res['name'], [zero, index['name']], inbounds=True)
+            if self.WhetherNeedLoad:
+                return_dict["name"] = builder.load(return_dict["name"])
+            return return_dict
+        else:  # error!
+            pass  # TODO
+            # raise SemanticError(ctx=ctx, msg="类型错误")
+
+    def visitArgument(self, ctx: simpleCParser.ArgumentContext):
+        """
+        argument : int | single | char | string;
+        """
+        return self.visit(ctx.getChild(0))
+
     
+
     def save(self, filename):
         """
         保存到文件
