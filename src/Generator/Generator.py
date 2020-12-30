@@ -43,7 +43,11 @@ class MyVisitor(simpleCVisitor):
             self.visit(ctx.getChild(i))
 
     # 函数相关函数
-    def visitFunctionDef(self, ctx: simpleCParser.FunctionDefContext):
+    def visitFunctionDef(self, ctx:simpleCParser.FunctionDefContext):
+        self.visit(ctx.getChild(0))
+        self.visit(ctx.getChild(1))
+
+    def visitFunctionHeaderDef(self, ctx: simpleCParser.FunctionHeaderDefContext):
 
         '''
         语法规则：mFunction : (mType|mVoid|mStruct) mID '(' params ')' '{' funcBody '}';
@@ -90,20 +94,11 @@ class MyVisitor(simpleCVisitor):
             mvar = builder.alloca(para_list[i]['type'])
             builder.store(llvm_func.args[i], mvar)
             self.symbol_table.insert_item(para_list[i]['name'], {'Type': para_list[i]['type'], 'Name': mvar})
-
-        # 处理函数body
-        self.visit(ctx.getChild(6))  # func body
-
-        # 处理完毕，退一层
-        self.cur_func = ''
-        self.block_list.pop()
-        self.builder_list.pop()
-        self.symbol_table.func_quit()
         return
 
     def visitMyType(self, ctx: simpleCParser.MyTypeContext):
         '''
-        语法规则：mType : 'int'| 'float'| 'char';
+        语法规则：mType : 'int'| 'double'| 'char';
         描述：类型主函数
         返回：无
         '''
@@ -111,8 +106,6 @@ class MyVisitor(simpleCVisitor):
             return int32
         if ctx.getText() == 'char':
             return int8
-        if ctx.getText() == 'float':
-            return single
         if ctx.getText() == 'double':
             return single
         return void
@@ -147,25 +140,30 @@ class MyVisitor(simpleCVisitor):
         返回：无
         '''
         self.symbol_table.func_enter()
-        for i in range(ctx.getChildCount()):
+        for i in range(1, ctx.getChildCount() - 1):
             self.visit(ctx.getChild(i))
+            if self.block_list[-1].is_terminated:
+                break
+        self.symbol_table.func_quit()
+        # 处理完毕，退一层
+        self.cur_func = ''
+        self.block_list.pop()
+        self.builder_list.pop()
         self.symbol_table.func_quit()
         return
-
+    '''
     def visitBody(self, ctx: simpleCParser.BodyContext):
-        '''
         语法规则：body : (block | func';')*;
         描述：语句块/函数块
         返回：无
-        '''
         for i in range(ctx.getChildCount()):
             self.visit(ctx.getChild(i))
             if self.block_list[-1].is_terminated:
                 break
         return
-
+    '''
     #语句块相关函数
-    def visitBlock(self, ctx:simpleCParser.BlockContext):
+    def visitSentence(self, ctx:simpleCParser.SentenceContext):
         '''
         语法规则：block : initialBlock | arrayInitBlock | structInitBlock | assignBlock | ifBlocks | whileBlock | forBlock | returnBlock;
         描述：语句块
@@ -574,12 +572,13 @@ class MyVisitor(simpleCVisitor):
             return_dict["name"] = builder.fcmp_ordered(operator, manipulate_index['name'], ir.Constant(single, 0))
             return return_dict
         return manipulate_index
-
+    '''
     def visitNeg(self, ctx: simpleCParser.NegContext):
         """
         expr : op = '!' expr
         """
         return self.visitChildren(ctx)
+    '''
 
     def visitOR(self, ctx: simpleCParser.ORContext):
         """
