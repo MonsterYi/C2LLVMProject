@@ -48,48 +48,33 @@ class MyVisitor(simpleCVisitor):
         '''
         # 获取函数名 todo
         func_name = ctx.getChild(1).getText()  # func name
-
         # 获取参数列表
         para_list = self.visit(ctx.getChild(3))  # func params
-
         # 根据返回值，函数名称和参数生成llvm函数
         type_list = []
         for i in range(len(para_list)):
             type_list.append(para_list[i]['type'])
         llvm_type = ir.FunctionType(self.visit(ctx.getChild(0)), type_list)
         llvm_func = ir.Function(self.module, llvm_type, name = func_name)
-
         # 存储函数的变量
         for i in range(len(para_list)):
             llvm_func.args[i].name = para_list[i]['name']
-
         #存储函数的block
         block = llvm_func.append_basic_block(name = func_name + '.entry')
-
-        # 判断重定义，存储函数
-        if func_name in self.func_list:
-            # raise SemanticError(ctx=ctx,msg="函数重定义错误！")
-            pass
-        else:
-            self.func_list[func_name] = llvm_func
-
-        builder = ir.IRBuilder(block)
         self.block_list.append(block)
+        self.func_list[func_name] = llvm_func
+        builder = ir.IRBuilder(block)
         self.builder_list.append(builder)
-
         # 进一层
         self.cur_func = func_name
         self.symbol_table.func_enter()
-
         # 存储函数的变量
         for i in range(len(para_list)):
             mvar = builder.alloca(para_list[i]['type'])
             builder.store(llvm_func.args[i], mvar)
             self.symbol_table.insert_item(para_list[i]['name'], {'Type': para_list[i]['type'], 'Name': mvar})
-
         # 处理函数body
         self.visit(ctx.getChild(6))  # func body
-
         # 处理完毕，退一层
         self.cur_func = ''
         self.block_list.pop()
@@ -226,14 +211,8 @@ class MyVisitor(simpleCVisitor):
         '''
         builder = self.builder_list[-1]
         length = ctx.getChildCount()
-        id = ctx.getChild(0).getText()
-        if not '[' in id and self.symbol_table.has_item(id) == False:
-            # raise SemanticError(ctx=ctx,msg="变量未定义！")
-            pass
-        
         #待赋值结果
         val = self.visit(ctx.getChild(length - 2))
-        
         #遍历全部左边变量赋值
         tmp = self.need_load
         self.need_load = False
