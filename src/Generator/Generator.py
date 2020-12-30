@@ -393,6 +393,12 @@ class MyVisitor(simpleCVisitor):
     # 每人在自己线下面写
     ####### MHY #############
     # Visit a parse tree produced by simpleCParser#condition.
+    def prepareBlock(self, block):
+        self.block_list.pop()
+        self.block_list.append(block)
+        self.builder_list.pop()
+        self.builder_list.append(ir.IRBuilder(block))
+
     def visitCondition(self, ctx: simpleCParser.ConditionContext):
         return self.toBoolean(self.visitChildren(ctx), False)
 
@@ -407,21 +413,15 @@ class MyVisitor(simpleCVisitor):
         self.cur_endif_block = endif_block
 
         cur_builder.branch(if_block)
-        self.block_list.pop()
-        self.block_list.append(if_block)
-        self.builder_list.pop()
-        self.builder_list.append(ir.IRBuilder(if_block))
+        self.prepareBlock(if_block)
 
         for _ in range(ctx.getChildCount()):
             self.visitChildren(ctx.getChild(_))
 
         if not self.block_list[-1].is_terminated:
             self.builder_list[-1].branch(endif_block)
-        self.block_list.pop()
-        self.builder_list.pop()
         self.cur_endif_block = cache
-        self.block_list.append(endif_block)
-        self.builder_list.append(ir.IRBuilder(endif_block))
+        self.prepareBlock(endif_block)
 
     # Visit a parse tree produced by simpleCParser#ifBlock.
     def visitIfBlock(self, ctx: simpleCParser.IfBlockContext):
@@ -431,18 +431,12 @@ class MyVisitor(simpleCVisitor):
         false_block = cur_builder.append_basic_block()
 
         cur_builder.cbranch(self.visit(ctx.getChild(2))['name'], true_block, false_block)
-        self.block_list.pop()
-        self.block_list.append(true_block)
-        self.builder_list.pop()
-        self.builder_list.append(ir.IRBuilder(true_block))
+        self.prepareBlock(true_block)
         self.visit(ctx.getChild(5))
 
         if not self.block_list[-1].is_terminated:
             self.builder_list[-1].branch(self.cur_endif_block)
-        self.block_list.pop()
-        self.builder_list.pop()
-        self.block_list.append(false_block)
-        self.builder_list.append(ir.IRBuilder(false_block))
+        self.prepareBlock(false_block)
         self.symbol_table.func_quit()
 
     # Visit a parse tree produced by simpleCParser#elifBlock.
@@ -453,18 +447,12 @@ class MyVisitor(simpleCVisitor):
         false_block = cur_builder.append_basic_block()
 
         cur_builder.cbranch(self.visit(ctx.getChild(2))['name'], true_block, false_block)
-        self.block_list.pop()
-        self.block_list.append(true_block)
-        self.builder_list.pop()
-        self.builder_list.append(ir.IRBuilder(true_block))
+        self.prepareBlock(true_block)
         self.visit(ctx.getChild(6))
 
         if not self.block_list[-1].is_terminated:
             self.builder_list[-1].branch(self.cur_endif_block)
-        self.block_list.pop()
-        self.builder_list.pop()
-        self.block_list.append(false_block)
-        self.builder_list.append(ir.IRBuilder(false_block))
+        self.prepareBlock(false_block)
         self.symbol_table.func_quit()
 
     # Visit a parse tree produced by simpleCParser#elseBlock.
@@ -473,7 +461,26 @@ class MyVisitor(simpleCVisitor):
         self.visit(ctx.getChild(2))
         self.symbol_table.func_quit()
 
+    # Visit a parse tree produced by simpleCParser#whileBlock.
+    def visitWhileBlock(self, ctx: simpleCParser.WhileBlockContext):
+        self.symbol_table.func_enter()
+        cur_builder = self.builder_list[-1]
+        cond_block = cur_builder.append_basic_block()
+        body_block = cur_builder.append_basic_block()
+        endwhile_block = cur_builder.append_basic_block()
 
+        cur_builder.branch(cond_block)
+        self.prepareBlock(cond_block)
+        cond=self.visit(ctx.getChild(2))
+
+        self.builder_list[-1].cbranch(self.visit(cond['name'], body_block, endwhile_block))
+        self.prepareBlock(body_block)
+        self.visit(ctx.getChild(5))
+
+        self.builder_list[-1].branch(cond_block)
+
+        self.prepareBlock(endwhile_block)
+        self.symbol_table.func_quit()
 
     ####### HYL #############
     # 类型转换至布尔型
