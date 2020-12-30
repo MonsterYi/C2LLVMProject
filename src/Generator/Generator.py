@@ -46,7 +46,7 @@ class MyVisitor(simpleCVisitor):
         '''
         mFunction: (myTYPE | myVOID) myID '(' params ')' '{' funcBody '}';
         '''
-        # 获取函数名 todo
+        # 获取函数名
         func_name = ctx.getChild(1).getText()  # func name
         # 获取参数列表
         para_list = self.visit(ctx.getChild(3))  # func params
@@ -62,7 +62,9 @@ class MyVisitor(simpleCVisitor):
         #存储函数的block
         block = llvm_func.append_basic_block(name = func_name + '.entry')
         self.block_list.append(block)
+        #将函数加到func_list
         self.func_list[func_name] = llvm_func
+        #存储函数的builder
         builder = ir.IRBuilder(block)
         self.builder_list.append(builder)
         # 进一层
@@ -84,14 +86,12 @@ class MyVisitor(simpleCVisitor):
 
     def visitMyTYPE(self, ctx:simpleCParser.MyTYPEContext):
         '''
-        myTYPE: 'int' | 'double' | 'char' | 'string';
+        myTYPE: 'int' | 'double' | 'char';
         '''
         if ctx.getText() == 'int':
             return int32
         if ctx.getText() == 'char':
             return byte1
-        if ctx.getText() == 'float':
-            return single
         if ctx.getText() == 'double':
             return single
         return void
@@ -162,7 +162,6 @@ class MyVisitor(simpleCVisitor):
                 ',' myID ('=' expr)?
             )* ';';
         '''
-        #初始化全局变量
         var_type = self.visit(ctx.getChild(0))
         length = ctx.getChildCount()
         i = 1
@@ -177,13 +176,10 @@ class MyVisitor(simpleCVisitor):
             if ctx.getChild(i + 1).getText() != '=':
                 i += 2
             else:
-                #初始化
                 val = self.visit(ctx.getChild(i + 2))
                 if self.symbol_table.is_global() == True:
-                    #全局变量
                     mvar.initializer = ir.Constant(val['type'], val['name'].constant)
                 else:
-                    #局部变量，可能有强制类型转换
                     val = self.assignConvert(val, var_type)
                     self.builder_list[-1].store(val['name'], mvar)
                 i += 4
@@ -196,8 +192,7 @@ class MyVisitor(simpleCVisitor):
         Type = self.visit(ctx.getChild(0))
         id = ctx.getChild(1).getText()
         length = int(ctx.getChild(3).getText())
-        if self.symbol_table.is_global() == True:   
-            #全局变量
+        if self.symbol_table.is_global() == True:
             mvar = ir.GlobalVariable(self.module, ir.ArrayType(Type, length), name = id)
             mvar.linkage = 'internal'
         else:
@@ -211,9 +206,7 @@ class MyVisitor(simpleCVisitor):
         '''
         builder = self.builder_list[-1]
         length = ctx.getChildCount()
-        #待赋值结果
         val = self.visit(ctx.getChild(length - 2))
-        #遍历全部左边变量赋值
         tmp = self.need_load
         self.need_load = False
         mvar = self.visit(ctx.getChild(0))
@@ -225,7 +218,6 @@ class MyVisitor(simpleCVisitor):
         '''
         returnBlock: 'return' (INT | ID)? ';';
         '''
-        # 返回空
         if ctx.getChildCount() == 2:
             ret = self.builder_list[-1].ret_void()
         else:
@@ -282,7 +274,6 @@ class MyVisitor(simpleCVisitor):
         while i < length - 1:
             tmp = self.need_load
             if ctx.getChild(i).getText() == '&':
-                #读取变量
                 self.need_load = False
                 arg_list.append(self.visit(ctx.getChild(i + 1))['name'])
                 i += 3
@@ -302,7 +293,7 @@ class MyVisitor(simpleCVisitor):
 	        ID '(' ((argument | ID) (',' (argument | ID))*)? ')';
         '''
         builder = self.builder_list[-1]
-        name = ctx.getChild(0).getText() # func name
+        name = ctx.getChild(0).getText()
         if name in self.func_list:
             func = self.func_list[name]
             length = ctx.getChildCount()
