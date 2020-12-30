@@ -457,6 +457,33 @@ class MyVisitor(simpleCVisitor):
             'name': builder.and_(index1['name'], index2['name'])
         }
 
+    def visitIdentifier(self, ctx: simpleCParser.IdentifierContext):
+        """
+        expr : identifier
+        """
+        return self.visit(ctx.getChild(0))
+
+    def visitParens(self, ctx: simpleCParser.ParensContext):
+        """
+        expr : '(' expr ')'
+        """
+        return self.visit(ctx.getChild(1))
+
+    def visitArrayitem(self, ctx: simpleCParser.ArrayitemContext):
+        """
+        expr : Array_item
+        """
+        return self.visit(ctx.getChild(0))
+
+    def visitString(self, ctx: simpleCParser.StringContext):
+        '''
+        expr : string
+        '''
+        return self.visit(ctx.getChild(0))
+
+    def isInteger(self, v_type):
+        return hasattr(v_type, 'width')
+    
     def save(self, filename):
         """
         保存到文件
