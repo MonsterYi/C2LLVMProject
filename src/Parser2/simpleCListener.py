@@ -8,6 +8,96 @@ else:
 # This class defines a complete listener for a parse tree produced by simpleCParser.
 class simpleCListener(ParseTreeListener):
 
+    # Enter a parse tree produced by simpleCParser#myID.
+    def enterMyID(self, ctx:simpleCParser.MyIDContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#myID.
+    def exitMyID(self, ctx:simpleCParser.MyIDContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#myINT.
+    def enterMyINT(self, ctx:simpleCParser.MyINTContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#myINT.
+    def exitMyINT(self, ctx:simpleCParser.MyINTContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#myDOUBLE.
+    def enterMyDOUBLE(self, ctx:simpleCParser.MyDOUBLEContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#myDOUBLE.
+    def exitMyDOUBLE(self, ctx:simpleCParser.MyDOUBLEContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#myCHAR.
+    def enterMyCHAR(self, ctx:simpleCParser.MyCHARContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#myCHAR.
+    def exitMyCHAR(self, ctx:simpleCParser.MyCHARContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mySTRING.
+    def enterMySTRING(self, ctx:simpleCParser.MySTRINGContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mySTRING.
+    def exitMySTRING(self, ctx:simpleCParser.MySTRINGContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#myLIB.
+    def enterMyLIB(self, ctx:simpleCParser.MyLIBContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#myLIB.
+    def exitMyLIB(self, ctx:simpleCParser.MyLIBContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#myTYPE.
+    def enterMyTYPE(self, ctx:simpleCParser.MyTYPEContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#myTYPE.
+    def exitMyTYPE(self, ctx:simpleCParser.MyTYPEContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#myARRAY.
+    def enterMyARRAY(self, ctx:simpleCParser.MyARRAYContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#myARRAY.
+    def exitMyARRAY(self, ctx:simpleCParser.MyARRAYContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#myARRAYITEM.
+    def enterMyARRAYITEM(self, ctx:simpleCParser.MyARRAYITEMContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#myARRAYITEM.
+    def exitMyARRAYITEM(self, ctx:simpleCParser.MyARRAYITEMContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#myVOID.
+    def enterMyVOID(self, ctx:simpleCParser.MyVOIDContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#myVOID.
+    def exitMyVOID(self, ctx:simpleCParser.MyVOIDContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#program.
     def enterProgram(self, ctx:simpleCParser.ProgramContext):
         pass
@@ -26,48 +116,48 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#functionDef.
-    def enterFunctionDef(self, ctx:simpleCParser.FunctionDefContext):
+    # Enter a parse tree produced by simpleCParser#mFunction.
+    def enterMFunction(self, ctx:simpleCParser.MFunctionContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#functionDef.
-    def exitFunctionDef(self, ctx:simpleCParser.FunctionDefContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#functionHeaderDef.
-    def enterFunctionHeaderDef(self, ctx:simpleCParser.FunctionHeaderDefContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#functionHeaderDef.
-    def exitFunctionHeaderDef(self, ctx:simpleCParser.FunctionHeaderDefContext):
+    # Exit a parse tree produced by simpleCParser#mFunction.
+    def exitMFunction(self, ctx:simpleCParser.MFunctionContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#functionParamsDef.
-    def enterFunctionParamsDef(self, ctx:simpleCParser.FunctionParamsDefContext):
+    # Enter a parse tree produced by simpleCParser#params.
+    def enterParams(self, ctx:simpleCParser.ParamsContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#functionParamsDef.
-    def exitFunctionParamsDef(self, ctx:simpleCParser.FunctionParamsDefContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#functionParamDef.
-    def enterFunctionParamDef(self, ctx:simpleCParser.FunctionParamDefContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#functionParamDef.
-    def exitFunctionParamDef(self, ctx:simpleCParser.FunctionParamDefContext):
+    # Exit a parse tree produced by simpleCParser#params.
+    def exitParams(self, ctx:simpleCParser.ParamsContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#functionBodyDef.
-    def enterFunctionBodyDef(self, ctx:simpleCParser.FunctionBodyDefContext):
+    # Enter a parse tree produced by simpleCParser#param.
+    def enterParam(self, ctx:simpleCParser.ParamContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#functionBodyDef.
-    def exitFunctionBodyDef(self, ctx:simpleCParser.FunctionBodyDefContext):
+    # Exit a parse tree produced by simpleCParser#param.
+    def exitParam(self, ctx:simpleCParser.ParamContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#funcBody.
+    def enterFuncBody(self, ctx:simpleCParser.FuncBodyContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#funcBody.
+    def exitFuncBody(self, ctx:simpleCParser.FuncBodyContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#body.
+    def enterBody(self, ctx:simpleCParser.BodyContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#body.
+    def exitBody(self, ctx:simpleCParser.BodyContext):
         pass
 
 
@@ -80,84 +170,75 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#sentence.
-    def enterSentence(self, ctx:simpleCParser.SentenceContext):
+    # Enter a parse tree produced by simpleCParser#initialBlock.
+    def enterInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#sentence.
-    def exitSentence(self, ctx:simpleCParser.SentenceContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#defineSentence.
-    def enterDefineSentence(self, ctx:simpleCParser.DefineSentenceContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#defineSentence.
-    def exitDefineSentence(self, ctx:simpleCParser.DefineSentenceContext):
+    # Exit a parse tree produced by simpleCParser#initialBlock.
+    def exitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#baseDefineSentence.
-    def enterBaseDefineSentence(self, ctx:simpleCParser.BaseDefineSentenceContext):
+    # Enter a parse tree produced by simpleCParser#baseInitialBlock.
+    def enterBaseInitialBlock(self, ctx:simpleCParser.BaseInitialBlockContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#baseDefineSentence.
-    def exitBaseDefineSentence(self, ctx:simpleCParser.BaseDefineSentenceContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#arrayDefineSentence.
-    def enterArrayDefineSentence(self, ctx:simpleCParser.ArrayDefineSentenceContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#arrayDefineSentence.
-    def exitArrayDefineSentence(self, ctx:simpleCParser.ArrayDefineSentenceContext):
+    # Exit a parse tree produced by simpleCParser#baseInitialBlock.
+    def exitBaseInitialBlock(self, ctx:simpleCParser.BaseInitialBlockContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#assignSentence.
-    def enterAssignSentence(self, ctx:simpleCParser.AssignSentenceContext):
+    # Enter a parse tree produced by simpleCParser#arrayInitialBlock.
+    def enterArrayInitialBlock(self, ctx:simpleCParser.ArrayInitialBlockContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#assignSentence.
-    def exitAssignSentence(self, ctx:simpleCParser.AssignSentenceContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#ifSentenceBlock.
-    def enterIfSentenceBlock(self, ctx:simpleCParser.IfSentenceBlockContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#ifSentenceBlock.
-    def exitIfSentenceBlock(self, ctx:simpleCParser.IfSentenceBlockContext):
+    # Exit a parse tree produced by simpleCParser#arrayInitialBlock.
+    def exitArrayInitialBlock(self, ctx:simpleCParser.ArrayInitialBlockContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#ifSentence.
-    def enterIfSentence(self, ctx:simpleCParser.IfSentenceContext):
+    # Enter a parse tree produced by simpleCParser#assignBlock.
+    def enterAssignBlock(self, ctx:simpleCParser.AssignBlockContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#ifSentence.
-    def exitIfSentence(self, ctx:simpleCParser.IfSentenceContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#elifSentence.
-    def enterElifSentence(self, ctx:simpleCParser.ElifSentenceContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#elifSentence.
-    def exitElifSentence(self, ctx:simpleCParser.ElifSentenceContext):
+    # Exit a parse tree produced by simpleCParser#assignBlock.
+    def exitAssignBlock(self, ctx:simpleCParser.AssignBlockContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#elseSentence.
-    def enterElseSentence(self, ctx:simpleCParser.ElseSentenceContext):
+    # Enter a parse tree produced by simpleCParser#ifBlocks.
+    def enterIfBlocks(self, ctx:simpleCParser.IfBlocksContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#elseSentence.
-    def exitElseSentence(self, ctx:simpleCParser.ElseSentenceContext):
+    # Exit a parse tree produced by simpleCParser#ifBlocks.
+    def exitIfBlocks(self, ctx:simpleCParser.IfBlocksContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#ifBlock.
+    def enterIfBlock(self, ctx:simpleCParser.IfBlockContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#ifBlock.
+    def exitIfBlock(self, ctx:simpleCParser.IfBlockContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#elifBlock.
+    def enterElifBlock(self, ctx:simpleCParser.ElifBlockContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#elifBlock.
+    def exitElifBlock(self, ctx:simpleCParser.ElifBlockContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#elseBlock.
+    def enterElseBlock(self, ctx:simpleCParser.ElseBlockContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#elseBlock.
+    def exitElseBlock(self, ctx:simpleCParser.ElseBlockContext):
         pass
 
 
@@ -170,66 +251,57 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#whileSentence.
-    def enterWhileSentence(self, ctx:simpleCParser.WhileSentenceContext):
+    # Enter a parse tree produced by simpleCParser#whileBlock.
+    def enterWhileBlock(self, ctx:simpleCParser.WhileBlockContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#whileSentence.
-    def exitWhileSentence(self, ctx:simpleCParser.WhileSentenceContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#forSentence.
-    def enterForSentence(self, ctx:simpleCParser.ForSentenceContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#forSentence.
-    def exitForSentence(self, ctx:simpleCParser.ForSentenceContext):
+    # Exit a parse tree produced by simpleCParser#whileBlock.
+    def exitWhileBlock(self, ctx:simpleCParser.WhileBlockContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#forDefineSentence.
-    def enterForDefineSentence(self, ctx:simpleCParser.ForDefineSentenceContext):
+    # Enter a parse tree produced by simpleCParser#forBlock.
+    def enterForBlock(self, ctx:simpleCParser.ForBlockContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#forDefineSentence.
-    def exitForDefineSentence(self, ctx:simpleCParser.ForDefineSentenceContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#forIteratorSentence.
-    def enterForIteratorSentence(self, ctx:simpleCParser.ForIteratorSentenceContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#forIteratorSentence.
-    def exitForIteratorSentence(self, ctx:simpleCParser.ForIteratorSentenceContext):
+    # Exit a parse tree produced by simpleCParser#forBlock.
+    def exitForBlock(self, ctx:simpleCParser.ForBlockContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#returnSentence.
-    def enterReturnSentence(self, ctx:simpleCParser.ReturnSentenceContext):
+    # Enter a parse tree produced by simpleCParser#forDefineBlock.
+    def enterForDefineBlock(self, ctx:simpleCParser.ForDefineBlockContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#returnSentence.
-    def exitReturnSentence(self, ctx:simpleCParser.ReturnSentenceContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#continueSentence.
-    def enterContinueSentence(self, ctx:simpleCParser.ContinueSentenceContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#continueSentence.
-    def exitContinueSentence(self, ctx:simpleCParser.ContinueSentenceContext):
+    # Exit a parse tree produced by simpleCParser#forDefineBlock.
+    def exitForDefineBlock(self, ctx:simpleCParser.ForDefineBlockContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#breakSentence.
-    def enterBreakSentence(self, ctx:simpleCParser.BreakSentenceContext):
+    # Enter a parse tree produced by simpleCParser#forIteratorBlock.
+    def enterForIteratorBlock(self, ctx:simpleCParser.ForIteratorBlockContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#breakSentence.
-    def exitBreakSentence(self, ctx:simpleCParser.BreakSentenceContext):
+    # Exit a parse tree produced by simpleCParser#forIteratorBlock.
+    def exitForIteratorBlock(self, ctx:simpleCParser.ForIteratorBlockContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#returnBlock.
+    def enterReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#returnBlock.
+    def exitReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#identifier.
+    def enterIdentifier(self, ctx:simpleCParser.IdentifierContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#identifier.
+    def exitIdentifier(self, ctx:simpleCParser.IdentifierContext):
         pass
 
 
@@ -242,21 +314,30 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#string.
+    def enterString(self, ctx:simpleCParser.StringContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#string.
+    def exitString(self, ctx:simpleCParser.StringContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#double.
+    def enterDouble(self, ctx:simpleCParser.DoubleContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#double.
+    def exitDouble(self, ctx:simpleCParser.DoubleContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#expr_parens.
     def enterExpr_parens(self, ctx:simpleCParser.Expr_parensContext):
         pass
 
     # Exit a parse tree produced by simpleCParser#expr_parens.
     def exitExpr_parens(self, ctx:simpleCParser.Expr_parensContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#expr_function.
-    def enterExpr_function(self, ctx:simpleCParser.Expr_functionContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#expr_function.
-    def exitExpr_function(self, ctx:simpleCParser.Expr_functionContext):
         pass
 
 
@@ -269,30 +350,21 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#int.
+    def enterInt(self, ctx:simpleCParser.IntContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#int.
+    def exitInt(self, ctx:simpleCParser.IntContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#expr_mul.
     def enterExpr_mul(self, ctx:simpleCParser.Expr_mulContext):
         pass
 
     # Exit a parse tree produced by simpleCParser#expr_mul.
     def exitExpr_mul(self, ctx:simpleCParser.Expr_mulContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#expr_identifier.
-    def enterExpr_identifier(self, ctx:simpleCParser.Expr_identifierContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#expr_identifier.
-    def exitExpr_identifier(self, ctx:simpleCParser.Expr_identifierContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#expr_int.
-    def enterExpr_int(self, ctx:simpleCParser.Expr_intContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#expr_int.
-    def exitExpr_int(self, ctx:simpleCParser.Expr_intContext):
         pass
 
 
@@ -314,6 +386,15 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#function.
+    def enterFunction(self, ctx:simpleCParser.FunctionContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#function.
+    def exitFunction(self, ctx:simpleCParser.FunctionContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#expr_or.
     def enterExpr_or(self, ctx:simpleCParser.Expr_orContext):
         pass
@@ -323,21 +404,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#expr_char.
-    def enterExpr_char(self, ctx:simpleCParser.Expr_charContext):
+    # Enter a parse tree produced by simpleCParser#char.
+    def enterChar(self, ctx:simpleCParser.CharContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#expr_char.
-    def exitExpr_char(self, ctx:simpleCParser.Expr_charContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#expr_string.
-    def enterExpr_string(self, ctx:simpleCParser.Expr_stringContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#expr_string.
-    def exitExpr_string(self, ctx:simpleCParser.Expr_stringContext):
+    # Exit a parse tree produced by simpleCParser#char.
+    def exitChar(self, ctx:simpleCParser.CharContext):
         pass
 
 
@@ -350,147 +422,39 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#expr_double.
-    def enterExpr_double(self, ctx:simpleCParser.Expr_doubleContext):
+    # Enter a parse tree produced by simpleCParser#func.
+    def enterFunc(self, ctx:simpleCParser.FuncContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#expr_double.
-    def exitExpr_double(self, ctx:simpleCParser.Expr_doubleContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#lib.
-    def enterLib(self, ctx:simpleCParser.LibContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#lib.
-    def exitLib(self, ctx:simpleCParser.LibContext):
+    # Exit a parse tree produced by simpleCParser#func.
+    def exitFunc(self, ctx:simpleCParser.FuncContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#myID.
-    def enterMyID(self, ctx:simpleCParser.MyIDContext):
+    # Enter a parse tree produced by simpleCParser#printfFunction.
+    def enterPrintfFunction(self, ctx:simpleCParser.PrintfFunctionContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#myID.
-    def exitMyID(self, ctx:simpleCParser.MyIDContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#myInt.
-    def enterMyInt(self, ctx:simpleCParser.MyIntContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#myInt.
-    def exitMyInt(self, ctx:simpleCParser.MyIntContext):
+    # Exit a parse tree produced by simpleCParser#printfFunction.
+    def exitPrintfFunction(self, ctx:simpleCParser.PrintfFunctionContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#myDouble.
-    def enterMyDouble(self, ctx:simpleCParser.MyDoubleContext):
+    # Enter a parse tree produced by simpleCParser#scanfFunction.
+    def enterScanfFunction(self, ctx:simpleCParser.ScanfFunctionContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#myDouble.
-    def exitMyDouble(self, ctx:simpleCParser.MyDoubleContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#myChar.
-    def enterMyChar(self, ctx:simpleCParser.MyCharContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#myChar.
-    def exitMyChar(self, ctx:simpleCParser.MyCharContext):
+    # Exit a parse tree produced by simpleCParser#scanfFunction.
+    def exitScanfFunction(self, ctx:simpleCParser.ScanfFunctionContext):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#myString.
-    def enterMyString(self, ctx:simpleCParser.MyStringContext):
+    # Enter a parse tree produced by simpleCParser#selfDefinedFunction.
+    def enterSelfDefinedFunction(self, ctx:simpleCParser.SelfDefinedFunctionContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#myString.
-    def exitMyString(self, ctx:simpleCParser.MyStringContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#operator.
-    def enterOperator(self, ctx:simpleCParser.OperatorContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#operator.
-    def exitOperator(self, ctx:simpleCParser.OperatorContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#conjunction.
-    def enterConjunction(self, ctx:simpleCParser.ConjunctionContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#conjunction.
-    def exitConjunction(self, ctx:simpleCParser.ConjunctionContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#inLineComment.
-    def enterInLineComment(self, ctx:simpleCParser.InLineCommentContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#inLineComment.
-    def exitInLineComment(self, ctx:simpleCParser.InLineCommentContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#blockComment.
-    def enterBlockComment(self, ctx:simpleCParser.BlockCommentContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#blockComment.
-    def exitBlockComment(self, ctx:simpleCParser.BlockCommentContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#space.
-    def enterSpace(self, ctx:simpleCParser.SpaceContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#space.
-    def exitSpace(self, ctx:simpleCParser.SpaceContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#myType.
-    def enterMyType(self, ctx:simpleCParser.MyTypeContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#myType.
-    def exitMyType(self, ctx:simpleCParser.MyTypeContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#array.
-    def enterArray(self, ctx:simpleCParser.ArrayContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#array.
-    def exitArray(self, ctx:simpleCParser.ArrayContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#arrayItem.
-    def enterArrayItem(self, ctx:simpleCParser.ArrayItemContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#arrayItem.
-    def exitArrayItem(self, ctx:simpleCParser.ArrayItemContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#myVoid.
-    def enterMyVoid(self, ctx:simpleCParser.MyVoidContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#myVoid.
-    def exitMyVoid(self, ctx:simpleCParser.MyVoidContext):
+    # Exit a parse tree produced by simpleCParser#selfDefinedFunction.
+    def exitSelfDefinedFunction(self, ctx:simpleCParser.SelfDefinedFunctionContext):
         pass
 
 
@@ -500,42 +464,6 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#argument.
     def exitArgument(self, ctx:simpleCParser.ArgumentContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#function.
-    def enterFunction(self, ctx:simpleCParser.FunctionContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#function.
-    def exitFunction(self, ctx:simpleCParser.FunctionContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#selfDefinedFunc.
-    def enterSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#selfDefinedFunc.
-    def exitSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#printFunc.
-    def enterPrintFunc(self, ctx:simpleCParser.PrintFuncContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#printFunc.
-    def exitPrintFunc(self, ctx:simpleCParser.PrintFuncContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#scanfFunc.
-    def enterScanfFunc(self, ctx:simpleCParser.ScanfFuncContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#scanfFunc.
-    def exitScanfFunc(self, ctx:simpleCParser.ScanfFuncContext):
         pass
 
 
