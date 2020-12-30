@@ -27,11 +27,10 @@ class MyVisitor(simpleCVisitor):
         self.builder_list = []
         self.func_list = dict()
         self.cur_func = ''
-        self.constant = 0
-        self.need_load = True
-        self.cur_endif_block=None
+        self.cur_endif_block = None
         self.symbol_table = SymbolTable()
         self.need_load = True
+        self.constants = 0
 
     def visitProg(self, ctx: simpleCParser.ProgContext):
         '''
@@ -556,27 +555,29 @@ class MyVisitor(simpleCVisitor):
     def isInteger(self, v_type):
         return hasattr(v_type, 'width')
 
-    def exprConvert(self, Index1, Index2):
-        if Index1['type'] == Index2['type']:
-            return Index1, Index2
-        if self.isInteger(Index1['type']) and self.isInteger(Index2['type']):
-            if Index1['type'].width < Index2['type'].width:
-                if Index1['type'].width == 1:
-                    Index1 = self.convertIIZ(Index1, Index2['type'])
+    def exprConvert(self, index1, index2):
+        if index1['type'] == index2['type']:
+            return index1, index2
+        if self.isInteger(index1['type']) and self.isInteger(index2['type']):
+            if index1['type'].width < index2['type'].width:
+                if index1['type'].width == 1:
+                    index1 = self.convertIIZ(index1, index2['type'])
                 else:
-                    Index1 = self.convertIIS(Index1, Index2['type'])
+                    index1 = self.convertIIS(index1, index2['type'])
             else:
-                if Index2['type'].width == 1:
-                    Index2 = self.convertIIZ(Index2, Index1['type'])
+                if index2['type'].width == 1:
+                    index2 = self.convertIIZ(index2, index1['type'])
                 else:
-                    Index2 = self.convertIIS(Index2, Index1['type'])
-        elif self.isInteger(Index1['type']) and Index2['type'] == double:
-            Index1 = convertIDS(Index1, Index2['type'])
-        elif self.isInteger(Index2['type']) and Index1['type'] == double:
-            Index2 = convertIDS(Index2, Index1['type'])
+                    index2 = self.convertIIS(index2, index1['type'])
+        elif self.isInteger(index1['type']) and index2['type'] == single:
+            index1 = convertIDS(index1, index2['type'])
+        elif self.isInteger(index2['type']) and index1['type'] == single:
+            index2 = convertIDS(index2, index1['type'])
         else:
-            raise SemanticError(ctx=ctx, msg="类型不匹配")
-        return Index1, Index2
+            # TODO
+            pass
+            # raise SemanticError(ctx=ctx, msg="类型不匹配")
+        return index1, index2
 
     def get_return_dict(self, ctx):
         index1, index2 = self.exprConvert(self.visit(ctx.getChild(0)), self.visit(ctx.getChild(2)))
@@ -733,7 +734,89 @@ class MyVisitor(simpleCVisitor):
         """
         return self.visit(ctx.getChild(0))
 
-    
+    def visitMID(self, ctx: simpleCParser.MIDContext):
+        """
+        identifier : ID;
+        """
+        identifier = ctx.getText()
+        if not self.SymbolTable.JudgeExist(identifier):
+            return {
+                'type': int32,
+                'const': False,
+                'name': ir.Constant(int32, None)
+            }
+        builder = self.builder_list[-1]
+        item = self.SymbolTable.GetItem(identifier)
+        if item is not None:
+            if self.need_load:
+                return {
+                    "type": item["Type"],
+                    "const": False,
+                    "name": builder.load(item["Name"]),
+                }
+            else:
+                return {
+                    "type": item["Type"],
+                    "const": False,
+                    "name": item["Name"],
+                }
+        else:
+            return {
+                'type': void,
+                'const': False,
+                'name': ir.Constant(void, None)
+            }
+
+    def visitMINT(self, ctx: simpleCParser.MINTContext):
+        """
+        int : int;
+        """
+        return {
+            'type': int32,
+            'const': True,
+            'name': ir.Constant(int32, int(ctx.getText()))
+        }
+
+    def visitMDOUBLE(self, ctx: simpleCParser.MDOUBLEContext):
+        """
+        double : double;
+        """
+        return {
+            'type': single,
+            'const': True,
+            'name': ir.Constant(single, float(ctx.getText()))
+        }
+
+    def visitMCHAR(self, ctx: simpleCParser.MCHARContext):
+        """
+        char : char;
+        """
+        return {
+            'type': int8,
+            'const': True,
+            'name': ir.Constant(int8, ord(ctx.getText()[1]))
+        }
+
+    def visitMSTRING(self, ctx: simpleCParser.MSTRINGContext):
+        """
+        语法规则：mSTRING : STRING;
+        描述：string
+        返回：无
+        """
+        mark_index = self.constants
+        self.constants += 1
+        process_index = ctx.getText().replace('\\n', '\n')
+        process_index = process_index[1:-1]
+        process_index += '\0'
+        length = len(bytearray(process_index, 'utf-8'))
+        ret_val = ir.GlobalVariable(self.module, ir.ArrayType(int8, length), ".str%d" % mark_index)
+        ret_val.global_constant = True
+        ret_val.initializer = ir.Constant(ir.ArrayType(int8, length), bytearray(process_index, 'utf-8'))
+        return {
+            'type': ir.ArrayType(int8, length),
+            'const': False,
+            'name': ret_val
+        }
 
     def save(self, filename):
         """
