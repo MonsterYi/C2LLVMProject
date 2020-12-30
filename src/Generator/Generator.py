@@ -224,22 +224,15 @@ class MyVisitor(simpleCVisitor):
         '''
         Type = self.visit(ctx.getChild(0))
         IDname = ctx.getChild(1).getText()
-        Length = int(ctx.getChild(3).getText())
+        length = int(ctx.getChild(3).getText())
 
         if self.symbol_table.JudgeWhetherGlobal() == True:   
             #全局变量
-            mvar = ir.GlobalVariable(self.Module, ir.ArrayType(Type, Length), name = IDname)
+            mvar = ir.GlobalVariable(self.module, ir.ArrayType(Type, length), name = IDname)
             mvar.linkage = 'internal'
         else:
-            mvar = self.builder_list[-1].alloca(ir.ArrayType(Type, Length), name = IDname)
-
-        TheVariable = {}
-        TheVariable["Type"] = ir.ArrayType(Type, Length)
-        TheVariable["Name"] = mvar
-        TheResult = self.SymbolTable.AddItem(IDname, TheVariable)
-        if TheResult["result"] != "success":
-            #raise SemanticError(ctx=ctx,msg=TheResult["reason"])
-            pass
+            mvar = self.builder_list[-1].alloca(ir.ArrayType(Type, length), name = IDname)
+        self.symbol_table.insert_item(IDname, {'Type': ir.ArrayType(Type, length), 'Name': mvar})
         return
 
     def visitAssignBlock(self, ctx:simpleCParser.AssignBlockContext):
