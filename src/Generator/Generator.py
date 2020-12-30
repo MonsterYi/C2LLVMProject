@@ -406,13 +406,13 @@ class MyVisitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#ifBlocks.
     def visitIfBlocks(self, ctx: simpleCParser.IfBlocksContext):
-        #If 逻辑代码块的入口，包括If Elif Else代码块
-        cur_builder=self.builder_list[-1]
-        if_block=cur_builder.append_basic_block()
-        endif_block=cur_builder.append_basic_block()
+        # If 逻辑代码块的入口，包括If Elif Else代码块
+        cur_builder = self.builder_list[-1]
+        if_block = cur_builder.append_basic_block()
+        endif_block = cur_builder.append_basic_block()
 
-        cache=self.cur_endif_block
-        self.cur_endif_block=endif_block
+        cache = self.cur_endif_block
+        self.cur_endif_block = endif_block
 
         cur_builder.branch(if_block)
         self.block_list.pop()
@@ -423,11 +423,65 @@ class MyVisitor(simpleCVisitor):
         for _ in range(ctx.getChildCount()):
             self.visitChildren(ctx.getChild(_))
 
-        if not self.block_list.pop().is_terminated:
-            self.builder_list.pop().branch(endif_block)
-        self.cur_endif_block=cache
+        if not self.block_list[-1].is_terminated:
+            self.builder_list[-1].branch(endif_block)
+        self.block_list.pop()
+        self.builder_list.pop()
+        self.cur_endif_block = cache
         self.block_list.append(endif_block)
         self.builder_list.append(ir.IRBuilder(endif_block))
+
+    # Visit a parse tree produced by simpleCParser#ifBlock.
+    def visitIfBlock(self, ctx: simpleCParser.IfBlockContext):
+        self.symbol_table.func_enter()
+        cur_builder = self.builder_list[-1]
+        true_block = cur_builder.append_basic_block()
+        false_block = cur_builder.append_basic_block()
+
+        cur_builder.cbranch(self.visit(ctx.getChild(2))['name'], true_block, false_block)
+        self.block_list.pop()
+        self.block_list.append(true_block)
+        self.builder_list.pop()
+        self.builder_list.append(ir.IRBuilder(true_block))
+        self.visit(ctx.getChild(5))
+
+        if not self.block_list[-1].is_terminated:
+            self.builder_list[-1].branch(self.cur_endif_block)
+        self.block_list.pop()
+        self.builder_list.pop()
+        self.block_list.append(false_block)
+        self.builder_list.append(ir.IRBuilder(false_block))
+        self.symbol_table.func_quit()
+
+    # Visit a parse tree produced by simpleCParser#elifBlock.
+    def visitElifBlock(self, ctx: simpleCParser.ElifBlockContext):
+        self.symbol_table.func_enter()
+        cur_builder = self.builder_list[-1]
+        true_block = cur_builder.append_basic_block()
+        false_block = cur_builder.append_basic_block()
+
+        cur_builder.cbranch(self.visit(ctx.getChild(2))['name'], true_block, false_block)
+        self.block_list.pop()
+        self.block_list.append(true_block)
+        self.builder_list.pop()
+        self.builder_list.append(ir.IRBuilder(true_block))
+        self.visit(ctx.getChild(6))
+
+        if not self.block_list[-1].is_terminated:
+            self.builder_list[-1].branch(self.cur_endif_block)
+        self.block_list.pop()
+        self.builder_list.pop()
+        self.block_list.append(false_block)
+        self.builder_list.append(ir.IRBuilder(false_block))
+        self.symbol_table.func_quit()
+
+    # Visit a parse tree produced by simpleCParser#elseBlock.
+    def visitElseBlock(self, ctx: simpleCParser.ElseBlockContext):
+        self.symbol_table.func_enter()
+        self.visit(ctx.getChild(2))
+        self.symbol_table.func_quit()
+
+
 
     ####### HYL #############
     # 类型转换至布尔型
