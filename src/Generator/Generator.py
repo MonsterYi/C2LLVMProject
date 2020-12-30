@@ -304,6 +304,41 @@ class MyVisitor(simpleCVisitor):
             return return_dict
         return manipulate_index
 
+    def visitNeg(self, ctx: simpleCParser.NegContext):
+        """
+        expr : op = '!' expr
+        """
+        #RealReturnValue = self.visit(ctx.getChild(1))
+        #RealReturnValue = self.toBoolean(RealReturnValue, True)
+        # res 未返回
+        return self.visitChildren(ctx)
+
+    def visitOR(self, ctx: simpleCParser.ORContext):
+        """
+        expr : expr '||' expr
+        """
+        index1 = self.toBoolean(self.visit(ctx.getChild(0)), False)
+        index2 = self.toBoolean(self.visit(ctx.getChild(2)), False)
+        builder = self.builder_list[-1]
+        return {
+            'type': index1['type'],
+            'const': False,
+            'name': builder.or_(index1['name'], index2['name'])
+        }
+
+    def visitAND(self, ctx: simpleCParser.ANDContext):
+        """
+        expr : expr '&&' expr
+        """
+        index1 = self.toBoolean(self.visit(ctx.getChild(0)), False)
+        index2 = self.toBoolean(self.visit(ctx.getChild(2)), False)
+        builder = self.builder_list[-1]
+        return {
+            'type': index1['type'],
+            'const': False,
+            'name': builder.and_(index1['name'], index2['name'])
+        }
+
     def save(self, filename):
         """
         保存到文件
