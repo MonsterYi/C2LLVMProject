@@ -22,7 +22,7 @@ int precede(char a, char b) {
 	if (a == '+' && b == ')') {
 		return 1;
 	}
-	if (a == '+' && b == '$') {
+	if (a == '+' && b == '=') {
 		return 1;
 	}
 
@@ -44,7 +44,7 @@ int precede(char a, char b) {
 	if (a == '-' && b == ')') {
 		return 1;
 	}
-	if (a == '-' && b == '$') {
+	if (a == '-' && b == '=') {
 		return 1;
 	}
 
@@ -66,7 +66,7 @@ int precede(char a, char b) {
 	if (a == '*' && b == ')') {
 		return 1;
 	}
-	if (a == '*' && b == '$') {
+	if (a == '*' && b == '=') {
 		return 1;
 	}
 
@@ -88,7 +88,7 @@ int precede(char a, char b) {
 	if (a == '/' && b == ')') {
 		return 1;
 	}
-	if (a == '/' && b == '$') {
+	if (a == '/' && b == '=') {
 		return 1;
 	}
 
@@ -110,7 +110,7 @@ int precede(char a, char b) {
 	if (a == '(' && b == ')') {
 		return 0;
 	}
-	if (a == '(' && b == '$') {
+	if (a == '(' && b == '=') {
 		return 3;
 	}
 
@@ -132,29 +132,29 @@ int precede(char a, char b) {
 	if (a == ')' && b == ')') {
 		return 1;
 	}
-	if (a == ')' && b == '$') {
+	if (a == ')' && b == '=') {
 		return 1;
 	}
 
-	if (a == '$' && b == '+') {
+	if (a == '=' && b == '+') {
 		return 2;
 	}
-	if (a == '$' && b == '-') {
+	if (a == '=' && b == '-') {
 		return 2;
 	}
-	if (a == '$' && b == '*') {
+	if (a == '=' && b == '*') {
 		return 2;
 	}
-	if (a == '$' && b == '/') {
+	if (a == '=' && b == '/') {
 		return 2;
 	}
-	if (a == '$' && b == '(') {
+	if (a == '=' && b == '(') {
 		return 2;
 	}
-	if (a == '$' && b == ')') {
+	if (a == '=' && b == ')') {
 		return 3;
 	}
-	if (a == '$' && b == '$') {
+	if (a == '=' && b == '=') {
 		return 0;
 	}
 
@@ -162,7 +162,7 @@ int precede(char a, char b) {
 }
 
 int isOp(char a) {
-	if (a == '+' || a == '-' || a == '/' || a == '*' || a == '(' || a == ')' || a == '$') {
+	if (a == '+' || a == '-' || a == '/' || a == '*' || a == '(' || a == ')' || a == '=') {
 		return 1;
 	}
 	return 0;
@@ -172,25 +172,28 @@ int isOp(char a) {
 int main() {
 	printf("Please input expression:");
 	char c;
-	char end = '$';
+	char end = '=';
 	int status = 0;
 	char theta;
 	int a, b = 0;
 	int ans = 0;
 	int optrTop = -1;
 	int opndTop = -1;
-	OPTR[optrTop+1] = '$';
+	int f=0;
+	char tmp;
+	OPTR[optrTop+1] = '=';
 	optrTop = optrTop + 1;
 	scanf("%c",&c);
 	while (c != end || OPTR[optrTop] != end) {
-		if (!isOp(c)) {
+		f=isOp(c);
+		if (f==0) {
 			c = c - '0';
 			OPND[opndTop + 1] = c;
 			opndTop = opndTop + 1;
 			scanf("%c",&c);
 		}
 		else {
-			char tmp = OPTR[optrTop];
+			tmp = OPTR[optrTop];
 			status = precede(tmp,c);
 			if (status == 2) {
 				OPTR[optrTop + 1] = c;
@@ -208,23 +211,23 @@ int main() {
 				opndTop = opndTop - 1;
 				a = OPND[opndTop];
 				opndTop = opndTop - 1;
-	if (theta == '+') {
-		ans = a + b;
-	}
-	else if (theta == '-') {
-		ans = a - b;
-	}
-	else if (theta == '*') {
-		ans = a * b;
-	}
-	else if (theta == '/') {
-		ans = a / b;
-	}
+				if (theta == '+') {
+					ans = a + b;
+				}
+				else if (theta == '-') {
+					ans = a - b;
+				}
+				else if (theta == '*') {
+					ans = a * b;
+				}
+				else if (theta == '/') {
+					ans = a / b;
+				}
 				OPND[opndTop + 1] = ans;
 				opndTop = opndTop + 1;
 			}
 		}
 	}
-	printf("%.2f", OPND[opndTop]);
+	printf("%d\n", OPND[opndTop]);
 	return 0;
 }
