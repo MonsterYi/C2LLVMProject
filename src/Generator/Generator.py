@@ -410,7 +410,7 @@ class MyVisitor(simpleCVisitor):
         self.builder_list.append(ir.IRBuilder(block))
 
     def visitCondition(self, ctx: simpleCParser.ConditionContext):
-        return self.toBoolean(self.visitChildren(ctx.getChild(0)), False)
+        return self.toBoolean(self.visit(ctx.getChild(0)), False)
 
     # Visit a parse tree produced by simpleCParser#ifBlocks.
     def visitIfBlocks(self, ctx: simpleCParser.IfBlocksContext):
@@ -426,7 +426,7 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(if_block)
 
         for _ in range(ctx.getChildCount()):
-            self.visitChildren(ctx.getChild(_))
+            self.visit(ctx.getChild(_))
 
         if not self.block_list[-1].is_terminated:
             self.builder_list[-1].branch(endif_block)
@@ -456,7 +456,7 @@ class MyVisitor(simpleCVisitor):
         true_block = cur_builder.append_basic_block()
         false_block = cur_builder.append_basic_block()
 
-        cur_builder.cbranch(self.visit(ctx.getChild(2))['name'], true_block, false_block)
+        cur_builder.cbranch(self.visit(ctx.getChild(3))['name'], true_block, false_block)
         self.prepareBlock(true_block)
         self.visit(ctx.getChild(6))
 
