@@ -16,9 +16,9 @@ structItemDef: (myID | array) (
 // define function
 functionDef: functionHeaderDef functionBodyDef;
 functionHeaderDef:
-	'*'? (myType | myVoid | struct) myID '(' functionParamsDef ')';
+	(myType | myVoid | struct) myID '(' functionParamsDef ')';
 functionParamsDef: functionParamDef (',' functionParamDef)* |;
-functionParamDef: '*'? (myType | struct) myID;
+functionParamDef: (myType | struct) myID;
 functionBodyDef: '{' block '}';
 
 // 代码块定义 
