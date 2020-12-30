@@ -6,7 +6,8 @@ from Parser.simpleCLexer import simpleCLexer
 from llvmlite import ir
 from Generator.SymbolTable import SymbolTable
 
-single = ir.FloatType()
+single = ir.DoubleType()
+double = ir.DoubleType()
 bool = ir.IntType(1)
 int32 = ir.IntType(32)
 int8 = ir.IntType(8)
@@ -111,6 +112,8 @@ class MyVisitor(simpleCVisitor):
         if ctx.getText() == 'char':
             return int8
         if ctx.getText() == 'float':
+            return single
+        if ctx.getText() == 'double':
             return single
         return void
 
@@ -338,8 +341,8 @@ class MyVisitor(simpleCVisitor):
         '''
         builder = self.builder_list[-1]
         FunctionName = ctx.getChild(0).getText() # func name
-        if FunctionName in self.Functions:
-            TheFunction = self.Functions[FunctionName]
+        if FunctionName in self.func_list:
+            TheFunction = self.func_list[FunctionName]
 
             Length = ctx.getChildCount()
             ParameterList = []
@@ -349,11 +352,9 @@ class MyVisitor(simpleCVisitor):
                 TheParameter = self.assignConvert(TheParameter, TheFunction.args[i // 2 - 1].type)
                 ParameterList.append(TheParameter['name'])
                 i += 2
-            ReturnVariableName = TheBuilder.call(TheFunction, ParameterList)
+            ReturnVariableName = builder.call(TheFunction, ParameterList)
             Result = {'type': TheFunction.function_type.return_type, 'name': ReturnVariableName}
             return Result
-        else:
-            raise SemanticError(ctx=ctx,msg="函数未定义！")
 
     def visitMINT(self, ctx:simpleCParser.MINTContext):
         '''
@@ -701,7 +702,7 @@ class MyVisitor(simpleCVisitor):
             return_dict["name"] = builder.sub(index1['name'], index2['name'])
         return return_dict
 
-    def visitSingle(self, ctx: simpleCParser.DoubleContext):
+    def visitDouble(self, ctx: simpleCParser.DoubleContext):
         """
         expr : (op='-')? single
         """
@@ -772,19 +773,6 @@ class MyVisitor(simpleCVisitor):
         return return_dict
 
     # 变量和变量类型相关函数
-    def visitMType(self, ctx: simpleCParser.MTypeContext):
-        """
-        Type : 'int'| 'single'| 'char'| 'string';
-        """
-        v_type = ctx.getText()
-        if v_type == 'int':
-            return int32
-        if v_type == 'char':
-            return int8
-        if v_type == 'single':
-            return single
-        return void
-
     def visitArrayItem(self, ctx: simpleCParser.ArrayItemContext):
         """
         expr : Array_Item
@@ -852,17 +840,7 @@ class MyVisitor(simpleCVisitor):
                 'const': False,
                 'name': ir.Constant(void, None)
             }
-
-    def visitMINT(self, ctx: simpleCParser.MINTContext):
-        """
-        int : int;
-        """
-        return {
-            'type': int32,
-            'const': True,
-            'name': ir.Constant(int32, int(ctx.getText()))
-        }
-
+            
     def visitMDOUBLE(self, ctx: simpleCParser.MDOUBLEContext):
         """
         double : double;

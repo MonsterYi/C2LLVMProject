@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 char OPTR[1000];
-float OPND[1000];
+double OPND[1000];
 int optrTop = -1;
 int opndTop = -1;
 
@@ -170,8 +170,8 @@ int isOp(char a) {
 	return 0;
 }
 
-float calc(float a, char op, float b) {
-	float res = 0.0;
+double calc(double a, char op, double b) {
+	double res = 0.0;
 	if (op == '+') {
 		res = a + b;
 	}
@@ -193,8 +193,8 @@ int main() {
 	char end = '\n';
 	int status = 0;
 	char theta;
-	float a, b = 0.0;
-	float ans = 0.0;
+	double a, b = 0.0;
+	double ans = 0.0;
 	OPTR[optrTop+1] = '\n';
 	optrTop = optrTop + 1;
 	scanf("%c",&c);
