@@ -69,23 +69,23 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#mFunction.
-    def visitMFunction(self, ctx:simpleCParser.MFunctionContext):
+    # Visit a parse tree produced by simpleCParser#myFunction.
+    def visitMyFunction(self, ctx:simpleCParser.MyFunctionContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#params.
-    def visitParams(self, ctx:simpleCParser.ParamsContext):
+    # Visit a parse tree produced by simpleCParser#defineParams.
+    def visitDefineParams(self, ctx:simpleCParser.DefineParamsContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#param.
-    def visitParam(self, ctx:simpleCParser.ParamContext):
+    # Visit a parse tree produced by simpleCParser#defineParam.
+    def visitDefineParam(self, ctx:simpleCParser.DefineParamContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#funcBody.
-    def visitFuncBody(self, ctx:simpleCParser.FuncBodyContext):
+    # Visit a parse tree produced by simpleCParser#functionBody.
+    def visitFunctionBody(self, ctx:simpleCParser.FunctionBodyContext):
         return self.visitChildren(ctx)
 
 
@@ -99,8 +99,8 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#initialBlock.
-    def visitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
+    # Visit a parse tree produced by simpleCParser#defineBlock.
+    def visitDefineBlock(self, ctx:simpleCParser.DefineBlockContext):
         return self.visitChildren(ctx)
 
 

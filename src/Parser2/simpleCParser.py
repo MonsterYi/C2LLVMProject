@@ -229,13 +229,13 @@ class simpleCParser ( Parser ):
     RULE_myVOID = 9
     RULE_program = 10
     RULE_include = 11
-    RULE_mFunction = 12
-    RULE_params = 13
-    RULE_param = 14
-    RULE_funcBody = 15
+    RULE_myFunction = 12
+    RULE_defineParams = 13
+    RULE_defineParam = 14
+    RULE_functionBody = 15
     RULE_body = 16
     RULE_block = 17
-    RULE_initialBlock = 18
+    RULE_defineBlock = 18
     RULE_baseInitialBlock = 19
     RULE_arrayInitialBlock = 20
     RULE_assignBlock = 21
@@ -258,8 +258,8 @@ class simpleCParser ( Parser ):
 
     ruleNames =  [ "myID", "myINT", "myDOUBLE", "myCHAR", "mySTRING", "myLIB", 
                    "myTYPE", "myARRAY", "myARRAYITEM", "myVOID", "program", 
-                   "include", "mFunction", "params", "param", "funcBody", 
-                   "body", "block", "initialBlock", "baseInitialBlock", 
+                   "include", "myFunction", "defineParams", "defineParam", 
+                   "functionBody", "body", "block", "defineBlock", "baseInitialBlock", 
                    "arrayInitialBlock", "assignBlock", "ifBlocks", "ifBlock", 
                    "elifBlock", "elseBlock", "condition", "whileBlock", 
                    "forBlock", "forDefineBlock", "forIteratorBlock", "returnBlock", 
@@ -822,18 +822,18 @@ class simpleCParser ( Parser ):
                 return self.getTypedRuleContext(simpleCParser.IncludeContext,i)
 
 
-        def initialBlock(self, i:int=None):
+        def defineBlock(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(simpleCParser.InitialBlockContext)
+                return self.getTypedRuleContexts(simpleCParser.DefineBlockContext)
             else:
-                return self.getTypedRuleContext(simpleCParser.InitialBlockContext,i)
+                return self.getTypedRuleContext(simpleCParser.DefineBlockContext,i)
 
 
-        def mFunction(self, i:int=None):
+        def myFunction(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(simpleCParser.MFunctionContext)
+                return self.getTypedRuleContexts(simpleCParser.MyFunctionContext)
             else:
-                return self.getTypedRuleContext(simpleCParser.MFunctionContext,i)
+                return self.getTypedRuleContext(simpleCParser.MyFunctionContext,i)
 
 
         def getRuleIndex(self):
@@ -882,12 +882,12 @@ class simpleCParser ( Parser ):
                 la_ = self._interp.adaptivePredict(self._input,1,self._ctx)
                 if la_ == 1:
                     self.state = 108
-                    self.initialBlock()
+                    self.defineBlock()
                     pass
 
                 elif la_ == 2:
                     self.state = 109
-                    self.mFunction()
+                    self.myFunction()
                     pass
 
 
@@ -957,7 +957,7 @@ class simpleCParser ( Parser ):
         return localctx
 
 
-    class MFunctionContext(ParserRuleContext):
+    class MyFunctionContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -967,12 +967,12 @@ class simpleCParser ( Parser ):
             return self.getTypedRuleContext(simpleCParser.MyIDContext,0)
 
 
-        def params(self):
-            return self.getTypedRuleContext(simpleCParser.ParamsContext,0)
+        def defineParams(self):
+            return self.getTypedRuleContext(simpleCParser.DefineParamsContext,0)
 
 
-        def funcBody(self):
-            return self.getTypedRuleContext(simpleCParser.FuncBodyContext,0)
+        def functionBody(self):
+            return self.getTypedRuleContext(simpleCParser.FunctionBodyContext,0)
 
 
         def myTYPE(self):
@@ -984,29 +984,29 @@ class simpleCParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return simpleCParser.RULE_mFunction
+            return simpleCParser.RULE_myFunction
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMFunction" ):
-                listener.enterMFunction(self)
+            if hasattr( listener, "enterMyFunction" ):
+                listener.enterMyFunction(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMFunction" ):
-                listener.exitMFunction(self)
+            if hasattr( listener, "exitMyFunction" ):
+                listener.exitMyFunction(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitMFunction" ):
-                return visitor.visitMFunction(self)
+            if hasattr( visitor, "visitMyFunction" ):
+                return visitor.visitMyFunction(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def mFunction(self):
+    def myFunction(self):
 
-        localctx = simpleCParser.MFunctionContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 24, self.RULE_mFunction)
+        localctx = simpleCParser.MyFunctionContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 24, self.RULE_myFunction)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 122
@@ -1028,13 +1028,13 @@ class simpleCParser ( Parser ):
             self.state = 125
             self.match(simpleCParser.T__10)
             self.state = 126
-            self.params()
+            self.defineParams()
             self.state = 127
             self.match(simpleCParser.T__11)
             self.state = 128
             self.match(simpleCParser.T__12)
             self.state = 129
-            self.funcBody()
+            self.functionBody()
             self.state = 130
             self.match(simpleCParser.T__13)
         except RecognitionException as re:
@@ -1046,43 +1046,43 @@ class simpleCParser ( Parser ):
         return localctx
 
 
-    class ParamsContext(ParserRuleContext):
+    class DefineParamsContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def param(self, i:int=None):
+        def defineParam(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(simpleCParser.ParamContext)
+                return self.getTypedRuleContexts(simpleCParser.DefineParamContext)
             else:
-                return self.getTypedRuleContext(simpleCParser.ParamContext,i)
+                return self.getTypedRuleContext(simpleCParser.DefineParamContext,i)
 
 
         def getRuleIndex(self):
-            return simpleCParser.RULE_params
+            return simpleCParser.RULE_defineParams
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterParams" ):
-                listener.enterParams(self)
+            if hasattr( listener, "enterDefineParams" ):
+                listener.enterDefineParams(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitParams" ):
-                listener.exitParams(self)
+            if hasattr( listener, "exitDefineParams" ):
+                listener.exitDefineParams(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitParams" ):
-                return visitor.visitParams(self)
+            if hasattr( visitor, "visitDefineParams" ):
+                return visitor.visitDefineParams(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def params(self):
+    def defineParams(self):
 
-        localctx = simpleCParser.ParamsContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 26, self.RULE_params)
+        localctx = simpleCParser.DefineParamsContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 26, self.RULE_defineParams)
         self._la = 0 # Token type
         try:
             self.state = 141
@@ -1091,7 +1091,7 @@ class simpleCParser ( Parser ):
             if token in [simpleCParser.T__0, simpleCParser.T__1, simpleCParser.T__2, simpleCParser.T__3]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 132
-                self.param()
+                self.defineParam()
                 self.state = 137
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -1099,7 +1099,7 @@ class simpleCParser ( Parser ):
                     self.state = 133
                     self.match(simpleCParser.T__14)
                     self.state = 134
-                    self.param()
+                    self.defineParam()
                     self.state = 139
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
@@ -1121,7 +1121,7 @@ class simpleCParser ( Parser ):
         return localctx
 
 
-    class ParamContext(ParserRuleContext):
+    class DefineParamContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1136,29 +1136,29 @@ class simpleCParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return simpleCParser.RULE_param
+            return simpleCParser.RULE_defineParam
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterParam" ):
-                listener.enterParam(self)
+            if hasattr( listener, "enterDefineParam" ):
+                listener.enterDefineParam(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitParam" ):
-                listener.exitParam(self)
+            if hasattr( listener, "exitDefineParam" ):
+                listener.exitDefineParam(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitParam" ):
-                return visitor.visitParam(self)
+            if hasattr( visitor, "visitDefineParam" ):
+                return visitor.visitDefineParam(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def param(self):
+    def defineParam(self):
 
-        localctx = simpleCParser.ParamContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 28, self.RULE_param)
+        localctx = simpleCParser.DefineParamContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 28, self.RULE_defineParam)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 143
@@ -1174,7 +1174,7 @@ class simpleCParser ( Parser ):
         return localctx
 
 
-    class FuncBodyContext(ParserRuleContext):
+    class FunctionBodyContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1189,29 +1189,29 @@ class simpleCParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return simpleCParser.RULE_funcBody
+            return simpleCParser.RULE_functionBody
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFuncBody" ):
-                listener.enterFuncBody(self)
+            if hasattr( listener, "enterFunctionBody" ):
+                listener.enterFunctionBody(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFuncBody" ):
-                listener.exitFuncBody(self)
+            if hasattr( listener, "exitFunctionBody" ):
+                listener.exitFunctionBody(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFuncBody" ):
-                return visitor.visitFuncBody(self)
+            if hasattr( visitor, "visitFunctionBody" ):
+                return visitor.visitFunctionBody(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def funcBody(self):
+    def functionBody(self):
 
-        localctx = simpleCParser.FuncBodyContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 30, self.RULE_funcBody)
+        localctx = simpleCParser.FunctionBodyContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 30, self.RULE_functionBody)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 146
@@ -1313,8 +1313,8 @@ class simpleCParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def initialBlock(self):
-            return self.getTypedRuleContext(simpleCParser.InitialBlockContext,0)
+        def defineBlock(self):
+            return self.getTypedRuleContext(simpleCParser.DefineBlockContext,0)
 
 
         def assignBlock(self):
@@ -1368,7 +1368,7 @@ class simpleCParser ( Parser ):
             if token in [simpleCParser.T__0, simpleCParser.T__1, simpleCParser.T__2, simpleCParser.T__3]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 158
-                self.initialBlock()
+                self.defineBlock()
                 pass
             elif token in [simpleCParser.ID]:
                 self.enterOuterAlt(localctx, 2)
@@ -1407,7 +1407,7 @@ class simpleCParser ( Parser ):
         return localctx
 
 
-    class InitialBlockContext(ParserRuleContext):
+    class DefineBlockContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1422,29 +1422,29 @@ class simpleCParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return simpleCParser.RULE_initialBlock
+            return simpleCParser.RULE_defineBlock
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInitialBlock" ):
-                listener.enterInitialBlock(self)
+            if hasattr( listener, "enterDefineBlock" ):
+                listener.enterDefineBlock(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInitialBlock" ):
-                listener.exitInitialBlock(self)
+            if hasattr( listener, "exitDefineBlock" ):
+                listener.exitDefineBlock(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitInitialBlock" ):
-                return visitor.visitInitialBlock(self)
+            if hasattr( visitor, "visitDefineBlock" ):
+                return visitor.visitDefineBlock(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def initialBlock(self):
+    def defineBlock(self):
 
-        localctx = simpleCParser.InitialBlockContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 36, self.RULE_initialBlock)
+        localctx = simpleCParser.DefineBlockContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 36, self.RULE_defineBlock)
         try:
             self.state = 168
             self._errHandler.sync(self)
