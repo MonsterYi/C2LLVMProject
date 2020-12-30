@@ -30,7 +30,7 @@ sentence:
 		| assignSentence
 		| ifSentenceBlock
 		| whileSentence
-		// | forDefineSentence
+		| forSentence
 		| returnSentence
 		| continueSentence
 		| breakSentence
@@ -58,6 +58,7 @@ whileSentence: 'while' '(' condition ')' '{' block '}';
 forSentence:
 	'for' '(' forDefineSentence ';' condition ';' forIteratorSentence ')' (
 		'{' block '}'
+		| ';'
 	);
 forDefineSentence: (myType)? myID '=' expr (
 		',' forDefineSentence
