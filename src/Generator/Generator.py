@@ -4,6 +4,7 @@ from Parser.simpleCParser import simpleCParser
 from Parser.simpleCVisitor import simpleCVisitor
 from Parser.simpleCLexer import simpleCLexer
 from llvmlite import ir
+from Generator.SymbolTable import SymbolTable
 
 single = ir.FloatType()
 int1 = ir.IntType(1)
@@ -80,7 +81,7 @@ class MyVisitor(simpleCVisitor):
 
         # 进一层
         self.cur_func = func_name
-        # self.SymbolTable.EnterScope()
+        self.symbol_table.func_enter()
 
         # 存储函数的变量
         for i in range(len(para_list)):
@@ -101,7 +102,7 @@ class MyVisitor(simpleCVisitor):
         self.cur_func = ''
         self.block_list.pop()
         self.builder_list.pop()
-        # self.SymbolTable.QuitScope()
+        self.symbol_table.func_quit()
         return
 
     def visitMType(self, ctx: simpleCParser.MTypeContext):
@@ -114,8 +115,8 @@ class MyVisitor(simpleCVisitor):
             return int32
         if ctx.getText() == 'char':
             return int8
-        if ctx.getText() == 'double':
-            return double
+        if ctx.getText() == 'float':
+            return single
         return void
 
     def visitParams(self, ctx: simpleCParser.ParamsContext):
@@ -124,16 +125,22 @@ class MyVisitor(simpleCVisitor):
         描述：函数的参数列表
         返回：处理后的函数参数列表
         '''
-        Length = ctx.getChildCount()
-        if (Length == 0):
-            return []
-        ParameterList = []
-        i = 0
-        while i < Length:
-            NewParameter = self.visit(ctx.getChild(i))
-            ParameterList.append(NewParameter)
-            i += 2
-        return ParameterList
+        length = ctx.getChildCount()
+        para_list = []
+        for i in range(0, length, 2):
+            para_list.append(self.visit(ctx.getChild(i)))
+        return para_list
+
+    def visitParam(self, ctx:simpleCParser.ParamContext):
+        '''
+        语法规则：param : mType mID;
+        描述：返回函数参数
+        返回：一个字典，字典的Type是类型，Name是参数名
+        '''
+        return {
+            'type': self.visit(ctx.getChild(0)),
+            'IDname': ctx.getChild(1).getText()
+        }
 
     def visitFuncBody(self, ctx: simpleCParser.FuncBodyContext):
         '''
@@ -141,10 +148,10 @@ class MyVisitor(simpleCVisitor):
         描述：函数体
         返回：无
         '''
-        # self.SymbolTable.EnterScope()
-        for index in range(ctx.getChildCount()):
-            self.visit(ctx.getChild(index))
-        # self.SymbolTable.QuitScope()
+        self.symbol_table.func_enter()
+        for i in range(ctx.getChildCount()):
+            self.visit(ctx.getChild(i))
+        self.symbol_table.func_quit()
         return
 
     def visitBody(self, ctx: simpleCParser.BodyContext):
@@ -158,6 +165,122 @@ class MyVisitor(simpleCVisitor):
             if self.block_list[-1].is_terminated:
                 break
         return
+
+    #语句块相关函数
+    def visitBlock(self, ctx:simpleCParser.BlockContext):
+        '''
+        语法规则：block : initialBlock | arrayInitBlock | structInitBlock | assignBlock | ifBlocks | whileBlock | forBlock | returnBlock;
+        描述：语句块
+        返回：无
+        '''
+        for i in range(ctx.getChildCount()):
+            self.visit(ctx.getChild(i))
+        return
+
+    def visitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
+        '''
+        语法规则：initialBlock : (mType) mID ('=' expr)? (',' mID ('=' expr)?)* ';';
+        描述：初始化语句块
+        返回：无
+        '''
+        #初始化全局变量
+        ParameterType = self.visit(ctx.getChild(0))
+        Length = ctx.getChildCount()
+        
+        i = 1
+        while i < Length:
+            IDname = ctx.getChild(i).getText()
+            if self.SymbolTable.JudgeWhetherGlobal() == True:   
+                NewVariable = ir.GlobalVariable(self.Module, ParameterType, name = IDname)
+                NewVariable.linkage = 'internal'
+            else:
+                TheBuilder = self.Builders[-1]
+                NewVariable = TheBuilder.alloca(ParameterType, name = IDname)
+            TheVariable = {}
+            TheVariable["Type"] = ParameterType
+            TheVariable["Name"] = NewVariable
+            TheResult = self.SymbolTable.AddItem(IDname, TheVariable)
+            if TheResult["result"] != "success":
+                #raise SemanticError(ctx=ctx,msg=TheResult["reason"])
+                pass
+
+            if ctx.getChild(i + 1).getText() != '=':
+                i += 2
+            else:
+                #初始化
+                Value = self.visit(ctx.getChild(i + 2))
+                if self.SymbolTable.JudgeWhetherGlobal() == True:   
+                    #全局变量
+                    NewVariable.initializer = ir.Constant(Value['type'], Value['name'].constant)
+                    #print(Value['name'].constant)
+                else:
+                    #局部变量，可能有强制类型转换
+                    Value = self.assignConvert(Value, ParameterType)
+                    TheBuilder = self.Builders[-1]
+                    TheBuilder.store(Value['name'], NewVariable)
+                i += 4
+        return
+
+    def visitArrayInitBlock(self, ctx:simpleCParser.ArrayInitBlockContext):
+        '''
+        语法规则：arrayInitBlock : mType mID '[' mINT ']'';'; 
+        描述：数组初始化块
+        返回：无
+        '''
+        Type = self.visit(ctx.getChild(0))
+        IDname = ctx.getChild(1).getText()
+        Length = int(ctx.getChild(3).getText())
+
+        if self.SymbolTable.JudgeWhetherGlobal() == True:   
+            #全局变量
+            NewVariable = ir.GlobalVariable(self.Module, ir.ArrayType(Type, Length), name = IDname)
+            NewVariable.linkage = 'internal'
+        else:
+            TheBuilder = self.Builders[-1]
+            NewVariable = TheBuilder.alloca(ir.ArrayType(Type, Length), name = IDname)
+
+        TheVariable = {}
+        TheVariable["Type"] = ir.ArrayType(Type, Length)
+        TheVariable["Name"] = NewVariable
+        TheResult = self.SymbolTable.AddItem(IDname, TheVariable)
+        if TheResult["result"] != "success":
+            #raise SemanticError(ctx=ctx,msg=TheResult["reason"])
+            pass
+        return
+
+    def visitAssignBlock(self, ctx:simpleCParser.AssignBlockContext):
+        '''
+        语法规则：assignBlock : ((arrayItem|mID|structMember) '=')+  expr ';';
+        描述：赋值语句块
+        返回：无
+        '''
+        TheBuilder = self.Builders[-1]
+        Length = ctx.getChildCount()
+        IDname = ctx.getChild(0).getText()
+        if not '[' in IDname and self.SymbolTable.JudgeExist(IDname) == False:
+            #raise SemanticError(ctx=ctx,msg="变量未定义！")
+            pass
+
+        #待赋值结果 
+        ValueToBeAssigned = self.visit(ctx.getChild(Length - 2))
+
+        i = 0
+        Result = {'type': ValueToBeAssigned['type'], 'name': ValueToBeAssigned['name']}
+        #遍历全部左边变量赋值
+        while i < Length - 2:
+            tmp = self.need_load
+            self.need_load = False
+            TheVariable = self.visit(ctx.getChild(i))
+            self.need_load = tmp
+
+            TheValueToBeAssigned = ValueToBeAssigned
+            TheValueToBeAssigned = self.assignConvert(TheValueToBeAssigned, TheVariable['type'])
+            TheBuilder.store(TheValueToBeAssigned['name'], TheVariable['name'])
+            if i > 0:
+                ReturnVariable = TheBuilder.load(TheVariable['name'])
+                Result = {'type': TheVariable['type'], 'name': ReturnVariable}
+            i += 2
+        return Result
 
     def visitReturnBlock(self, ctx: simpleCParser.ReturnBlockContext):
         '''
@@ -220,27 +343,23 @@ class MyVisitor(simpleCVisitor):
             scanf_type = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg = True)
             scanf = ir.Function(self.module, scanf_type, name="scanf")
             self.func_list['scanf'] = scanf
-
         builder = self.builder_list[-1]
         zero = ir.Constant(int32, 0)
         arg_list = [builder.gep(self.visit(ctx.getChild(2))['name'], [zero, zero], inbounds = True)]
-
         length = ctx.getChildCount()
         i = 4
         while i < length - 1:
+            tmp = self.need_load
             if ctx.getChild(i).getText() == '&':
                 #读取变量
-                PreviousNeedLoad = self.WhetherNeedLoad
-                self.WhetherNeedLoad = False
+                self.need_load = False
                 arg_list.append(self.visit(ctx.getChild(i + 1))['name'])
-                self.WhetherNeedLoad = PreviousNeedLoad
                 i += 3
             else:
-                PreviousNeedLoad = self.WhetherNeedLoad
-                self.WhetherNeedLoad = True
+                self.need_load = True
                 arg_list.append(self.visit(ctx.getChild(i))['name'])
-                self.WhetherNeedLoad = PreviousNeedLoad
                 i += 2
+            self.need_load = tmp
         return {
             'type': int32,
             'name': builder.call(scanf, arg_list)
@@ -252,10 +371,9 @@ class MyVisitor(simpleCVisitor):
         描述：int
         返回：无
         '''
-        JudgeReg = True
         return {
             'type': int32,
-            'const': JudgeReg,
+            'const': True,
             'name': ir.Constant(int32, int(ctx.getText()))
         }
 
@@ -265,20 +383,18 @@ class MyVisitor(simpleCVisitor):
         描述：string
         返回：无
         '''
-        MarkIndex = self.constant
+        mstr = ctx.getText().replace('\\n', '\n')
+        mstr = mstr[1:-1]
+        mstr += '\0'
+        length = len(bytearray(mstr, 'utf-8'))
+        ret = ir.GlobalVariable(self.module, ir.ArrayType(int8, length), ".str%d" % self.constant)
         self.constant += 1
-        ProcessIndex = ctx.getText().replace('\\n', '\n')
-        ProcessIndex = ProcessIndex[1:-1]
-        ProcessIndex += '\0'
-        Len = len(bytearray(ProcessIndex, 'utf-8'))
-        JudgeReg = False
-        RealReturnValue = ir.GlobalVariable(self.module, ir.ArrayType(int8, Len), ".str%d" % MarkIndex)
-        RealReturnValue.global_constant = True
-        RealReturnValue.initializer = ir.Constant(ir.ArrayType(int8, Len), bytearray(ProcessIndex, 'utf-8'))
+        ret.global_constant = True
+        ret.initializer = ir.Constant(ir.ArrayType(int8, length), bytearray(mstr, 'utf-8'))
         return {
-            'type': ir.ArrayType(int8, Len),
-            'const': JudgeReg,
-            'name': RealReturnValue
+            'type': ir.ArrayType(int8, length),
+            'const': False,
+            'name': ret
         }
 
     # 每人在自己线下面写
