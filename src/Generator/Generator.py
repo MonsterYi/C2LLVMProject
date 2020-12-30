@@ -340,21 +340,17 @@ class MyVisitor(simpleCVisitor):
         返回：函数返回值
         '''
         builder = self.builder_list[-1]
-        FunctionName = ctx.getChild(0).getText() # func name
-        if FunctionName in self.func_list:
-            TheFunction = self.func_list[FunctionName]
-
-            Length = ctx.getChildCount()
-            ParameterList = []
-            i = 2
-            while i < Length - 1:
-                TheParameter = self.visit(ctx.getChild(i))
-                TheParameter = self.assignConvert(TheParameter, TheFunction.args[i // 2 - 1].type)
-                ParameterList.append(TheParameter['name'])
-                i += 2
-            ReturnVariableName = builder.call(TheFunction, ParameterList)
-            Result = {'type': TheFunction.function_type.return_type, 'name': ReturnVariableName}
-            return Result
+        name = ctx.getChild(0).getText() # func name
+        if name in self.func_list:
+            func = self.func_list[name]
+            length = ctx.getChildCount()
+            para_list = []
+            for i in range(2, length - 1, 2):
+                para_list.append(self.assignConvert(self.visit(ctx.getChild(i)), func.args[i // 2 - 1].type)['name'])
+            return {
+                'type': func.function_type.return_type,
+                'name': builder.call(func, para_list)
+            }
 
     def visitMINT(self, ctx:simpleCParser.MINTContext):
         '''
