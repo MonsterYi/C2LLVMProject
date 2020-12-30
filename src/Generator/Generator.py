@@ -730,14 +730,14 @@ class MyVisitor(simpleCVisitor):
         identifier : ID;
         """
         identifier = ctx.getText()
-        if not self.symbol_table.JudgeExist(identifier):
+        if not self.symbol_table.has_item(identifier):
             return {
                 'type': int32,
                 'const': False,
                 'name': ir.Constant(int32, None)
             }
         builder = self.builder_list[-1]
-        item = self.symbol_table.GetItem(identifier)
+        item = self.symbol_table.get_item(identifier)
         if item is not None:
             if self.need_load:
                 return {
