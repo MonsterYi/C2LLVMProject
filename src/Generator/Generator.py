@@ -9,7 +9,7 @@ from Generator.SymbolTable import SymbolTable
 single = ir.DoubleType()
 bool = ir.IntType(1)
 int32 = ir.IntType(32)
-int8 = ir.IntType(8)
+byte1 = ir.IntType(8)
 void = ir.VoidType()
 
 
@@ -90,7 +90,7 @@ class MyVisitor(simpleCVisitor):
         if ctx.getText() == 'int':
             return int32
         if ctx.getText() == 'char':
-            return int8
+            return byte1
         if ctx.getText() == 'double':
             return single
         return void
@@ -256,7 +256,7 @@ class MyVisitor(simpleCVisitor):
         if 'printf' in self.func_list:
             printf = self.func_list['printf']
         else:
-            printf_type = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg = True)
+            printf_type = ir.FunctionType(int32, [ir.PointerType(byte1)], var_arg = True)
             printf = ir.Function(self.module, printf_type, name = "printf")
             self.func_list['printf'] = printf
         builder = self.builder_list[-1]
@@ -280,7 +280,7 @@ class MyVisitor(simpleCVisitor):
         if 'scanf' in self.func_list:
             scanf = self.func_list['scanf']
         else:
-            scanf_type = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg = True)
+            scanf_type = ir.FunctionType(int32, [ir.PointerType(byte1)], var_arg = True)
             scanf = ir.Function(self.module, scanf_type, name="scanf")
             self.func_list['scanf'] = scanf
         builder = self.builder_list[-1]
@@ -339,12 +339,12 @@ class MyVisitor(simpleCVisitor):
         """
         mstr = ctx.getText().replace('\\n', '\n')[1:-1] + '\0'
         length = len(bytearray(mstr, 'utf-8'))
-        ret = ir.GlobalVariable(self.module, ir.ArrayType(int8, length), ".str%d" % self.constants)
+        ret = ir.GlobalVariable(self.module, ir.ArrayType(byte1, length), ".str%d" % self.constants)
         self.constants += 1
         ret.global_constant = True
-        ret.initializer = ir.Constant(ir.ArrayType(int8, length), bytearray(mstr, 'utf-8'))
+        ret.initializer = ir.Constant(ir.ArrayType(byte1, length), bytearray(mstr, 'utf-8'))
         return {
-            'type': ir.ArrayType(int8, length),
+            'type': ir.ArrayType(byte1, length),
             'const': False,
             'name': ret
         }
@@ -501,13 +501,13 @@ class MyVisitor(simpleCVisitor):
         print(src["type"],dest_type)
         if src['type'] == dest_type:
             pass
-        elif src['type'] == bool and self.isInteger(dest_type):
+        elif src['type'] == bool and self.isInt(dest_type):
             src = self.bool2int(src, dest_type)
-        elif self.isInteger(src['type']) and self.isInteger(dest_type):
+        elif self.isInt(src['type']) and self.isInt(dest_type):
             src = self.int2int(src, dest_type)
-        elif src['type'] == single and self.isInteger(dest_type):
+        elif src['type'] == single and self.isInt(dest_type):
             src = self.single2int(src, dest_type)
-        elif self.isInteger(src['type']) and dest_type == single:
+        elif self.isInt(src['type']) and dest_type == single:
             src = self.int2single(src, dest_type)
         return src
 
@@ -526,21 +526,21 @@ class MyVisitor(simpleCVisitor):
 
     ####### HYL #############
     # 类型转换至布尔型
-    def toBoolean(self, manipulate_index, not_equal=True):
+    def toBoolean(self, index, not_equal=True):
         builder = self.builder_list[-1]
         operator = "==" if not_equal else "!="
         return_dict = {
             'type': bool,
             'const': False
         }
-        if manipulate_index['type'] == int8 or manipulate_index['type'] == int32:
-            return_dict["name"] = builder.icmp_signed(operator, manipulate_index['name'],
-                                                      ir.Constant(manipulate_index['type'], 0))
+        if index['type'] == byte1 or index['type'] == int32:
+            return_dict["name"] = builder.icmp_signed(operator, index['name'],
+                                                      ir.Constant(index['type'], 0))
             return return_dict
-        elif manipulate_index['type'] == single:
-            return_dict["name"] = builder.fcmp_ordered(operator, manipulate_index['name'], ir.Constant(single, 0))
+        elif index['type'] == single:
+            return_dict["name"] = builder.fcmp_ordered(operator, index['name'], ir.Constant(single, 0))
             return return_dict
-        return manipulate_index
+        return index
 
     def visitExpr_neg(self, ctx: simpleCParser.Expr_negContext):
         """
@@ -553,26 +553,24 @@ class MyVisitor(simpleCVisitor):
         """
         expr : expr '||' expr
         """
-        index1 = self.toBoolean(self.visit(ctx.getChild(0)), False)
-        index2 = self.toBoolean(self.visit(ctx.getChild(2)), False)
-        builder = self.builder_list[-1]
+        expr1 = self.toBoolean(self.visit(ctx.getChild(0)), False)
+        expr2 = self.toBoolean(self.visit(ctx.getChild(2)), False)
         return {
-            'type': index1['type'],
+            'type': expr1['type'],
             'const': False,
-            'name': builder.or_(index1['name'], index2['name'])
+            'name': self.builder_list[-1].or_(expr1['name'], expr2['name'])
         }
 
     def visitExpr_and(self, ctx: simpleCParser.Expr_andContext):
         """
         expr : expr '&&' expr
         """
-        index1 = self.toBoolean(self.visit(ctx.getChild(0)), False)
-        index2 = self.toBoolean(self.visit(ctx.getChild(2)), False)
-        builder = self.builder_list[-1]
+        expr1 = self.toBoolean(self.visit(ctx.getChild(0)), False)
+        expr2 = self.toBoolean(self.visit(ctx.getChild(2)), False)
         return {
-            'type': index1['type'],
+            'type': expr1['type'],
             'const': False,
-            'name': builder.and_(index1['name'], index2['name'])
+            'name': self.builder_list[-1].and_(expr1['name'], expr2['name'])
         }
 
     def visitExpr_identifier(self, ctx: simpleCParser.Expr_identifierContext):
@@ -599,54 +597,48 @@ class MyVisitor(simpleCVisitor):
         """
         return self.visit(ctx.getChild(0))
 
-    def isInteger(self, v_type):
+    def isInt(self, v_type):
         return hasattr(v_type, 'width')
 
-    def exprConvert(self, index1, index2):
-        if index1['type'] == index2['type']:
-            return index1, index2
-        if self.isInteger(index1['type']) and self.isInteger(index2['type']):
-            if index1['type'].width < index2['type'].width:
-                if index1['type'].width == 1:
-                    index1 = self.bool2int(index1, index2['type'])
-                else:
-                    index1 = self.int2int(index1, index2['type'])
+    def exprConvert(self, expr1, expr2):
+        if expr1['type'] == expr2['type']:
+            return expr1, expr2
+        if self.isInt(expr1['type']) and self.isInt(expr2['type']):
+            if expr1['type'].width < expr2['type'].width:
+                expr1 = self.bool2int(expr1, expr2['type']) if expr1['type'].width == 1 else self.int2int(expr1, expr2['type'])
             else:
-                if index2['type'].width == 1:
-                    index2 = self.bool2int(index2, index1['type'])
-                else:
-                    index2 = self.int2int(index2, index1['type'])
-        elif self.isInteger(index1['type']) and index2['type'] == single:
-            index1 = self.int2single(index1, index2['type'])
-        elif self.isInteger(index2['type']) and index1['type'] == single:
-            index2 = self.int2single(index2, index1['type'])
+                expr2 = self.bool2int(expr2, expr1['type']) if expr2['type'].width == 1 else expr2 = self.int2int(expr2, expr1['type'])
+        elif self.isInt(expr1['type']) and expr2['type'] == single:
+            expr1 = self.int2single(expr1, expr2['type'])
+        elif self.isInt(expr2['type']) and expr1['type'] == single:
+            expr2 = self.int2single(expr2, expr1['type'])
         else:
             # TODO
+            # raise Error(ctx=ctx, msg="不匹配")
             pass
-            # raise SemanticError(ctx=ctx, msg="类型不匹配")
-        return index1, index2
+        return expr1, expr2
 
     def get_return_dict(self, ctx):
-        index1, index2 = self.exprConvert(self.visit(ctx.getChild(0)), self.visit(ctx.getChild(2)))
+        expr1, expr2 = self.exprConvert(self.visit(ctx.getChild(0)), self.visit(ctx.getChild(2)))
         return_dict = {
-            'type': index1['type'],
+            'type': expr1['type'],
             'const': False
         }
-        return index1, index2, return_dict
+        return expr1, expr2, return_dict
 
     def visitExpr_mul(self, ctx: simpleCParser.Expr_mulContext):
         """
         expr : expr op=('*' | '/' | '%') expr
         """
         builder = self.builder_list[-1]
-        index1, index2, return_dict = self.get_return_dict(ctx)
+        expr1, expr2, return_dict = self.get_return_dict(ctx)
         operator = ctx.getChild(1).getText()
         if operator == '*':
-            return_dict["name"] = builder.mul(index1['name'], index2['name'])
+            return_dict["name"] = builder.mul(expr1['name'], expr2['name'])
         elif operator == '/':
-            return_dict["name"] = builder.sdiv(index1['name'], index2['name'])
+            return_dict["name"] = builder.sdiv(expr1['name'], expr2['name'])
         elif operator == '%':
-            return_dict["name"] = builder.srem(index1['name'], index2['name'])
+            return_dict["name"] = builder.srem(expr1['name'], expr2['name'])
         return return_dict
 
     def visitExpr_add(self, ctx: simpleCParser.Expr_addContext):
@@ -654,12 +646,12 @@ class MyVisitor(simpleCVisitor):
         expr op=('+' | '-') expr
         """
         builder = self.builder_list[-1]
-        index1, index2, return_dict = self.get_return_dict(ctx)
+        expr1, expr2, return_dict = self.get_return_dict(ctx)
         operator = ctx.getChild(1).getText()
         if operator == '+':
-            return_dict["name"] = builder.add(index1['name'], index2['name'])
+            return_dict["name"] = builder.add(expr1['name'], expr2['name'])
         elif operator == '-':
-            return_dict["name"] = builder.sub(index1['name'], index2['name'])
+            return_dict["name"] = builder.sub(expr1['name'], expr2['name'])
         return return_dict
 
     def visitExpr_double(self, ctx: simpleCParser.Expr_doubleContext):
@@ -720,16 +712,16 @@ class MyVisitor(simpleCVisitor):
         expr : expr op=('==' | '!=' | '<' | '<=' | '>' | '>=') expr
         """
         builder = self.builder_list[-1]
-        index1, index2 = self.exprConvert(self.visit(ctx.getChild(0)), self.visit(ctx.getChild(2)))
+        expr1, expr2 = self.exprConvert(self.visit(ctx.getChild(0)), self.visit(ctx.getChild(2)))
         return_dict = {
-            'type': index1['type'],
+            'type': expr1['type'],
             'const': False
         }
         operator = ctx.getChild(1).getText()
-        if index1['type'] == single:
-            return_dict["name"] = builder.fcmp_ordered(operator, index1['name'], index2['name'])
-        elif self.isInteger(index1['type']):
-            return_dict["name"] = builder.icmp_signed(operator, index1['name'], index2['name'])
+        if expr1['type'] == single:
+            return_dict["name"] = builder.fcmp_ordered(operator, expr1['name'], expr2['name'])
+        elif self.isInt(expr1['type']):
+            return_dict["name"] = builder.icmp_signed(operator, expr1['name'], expr2['name'])
         return return_dict
 
     # 变量和变量类型相关函数
@@ -739,7 +731,7 @@ class MyVisitor(simpleCVisitor):
         """
         require_load = self.need_load
         self.need_load = False
-        res = self.visit(ctx.getChild(0))  # mID
+        res = self.visit(ctx.getChild(0))  # identifier
         self.need_load = require_load
 
         if isinstance(res['type'], ir.types.ArrayType):
@@ -747,7 +739,7 @@ class MyVisitor(simpleCVisitor):
 
             require_load = self.need_load
             self.need_load = True
-            index = self.visit(ctx.getChild(2))  # subscript
+            index = self.visit(ctx.getChild(2))  # child
             self.need_load = require_load
             return_dict = {
                 'type': res['type'].element,
@@ -760,7 +752,7 @@ class MyVisitor(simpleCVisitor):
             return return_dict
         else:  # error!
             pass  # TODO
-            # raise SemanticError(ctx=ctx, msg="类型错误")
+            # raise Error(ctx=ctx, msg="类型错误")
 
     def visitArgument(self, ctx: simpleCParser.ArgumentContext):
         """
@@ -816,9 +808,9 @@ class MyVisitor(simpleCVisitor):
         char : char;
         """
         return {
-            'type': int8,
+            'type': byte1,
             'const': True,
-            'name': ir.Constant(int8, ord(ctx.getText()[1]))
+            'name': ir.Constant(byte1, ord(ctx.getText()[1]))
         }
 
     def save(self, filename):
