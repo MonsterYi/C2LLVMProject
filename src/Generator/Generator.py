@@ -39,6 +39,9 @@ class MyVisitor(simpleCVisitor):
         for i in range(0, ctx.getChildCount()):
             self.visit(ctx.getChild(i))
 
+    def visitInclude(self, ctx:simpleCParser.IncludeContext):
+        pass
+
     # 函数相关函数
     def visitFunctionDef(self, ctx:simpleCParser.FunctionDefContext):
         self.visit(ctx.getChild(0))
@@ -122,7 +125,7 @@ class MyVisitor(simpleCVisitor):
         block: (sentence)+;
         '''
         self.symbol_table.func_enter()
-        for i in range(1, ctx.getChildCount() - 1):
+        for i in range(0, ctx.getChildCount()):
             self.visit(ctx.getChild(i))
             if self.block_list[-1].is_terminated:
                 break
