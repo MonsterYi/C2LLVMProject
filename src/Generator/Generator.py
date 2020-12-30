@@ -229,51 +229,23 @@ class MyVisitor(simpleCVisitor):
         描述：赋值语句块
         返回：无
         '''
-        TheBuilder = self.builder_list[-1]
-        Length = ctx.getChildCount()
-        IDname = ctx.getChild(0).getText()
-        if not '[' in IDname and self.symbol_table.has_item(IDname) == False:
-            raise SemanticError(ctx=ctx, msg="变量未定义！")
-
-        # 待赋值结果
-        ValueToBeAssigned = self.visit(ctx.getChild(Length - 2))
-
-        i = 0
-        Result = {'type': ValueToBeAssigned['type'], 'name': ValueToBeAssigned['name']}
-        # 遍历全部左边变量赋值
-        while i < Length - 2:
-            PreviousNeedLoad = self.need_load
-            self.need_load = False
-            TheVariable = self.visit(ctx.getChild(i))
-            self.need_load = PreviousNeedLoad
-
-            TheValueToBeAssigned = ValueToBeAssigned
-            TheValueToBeAssigned = self.assignConvert(TheValueToBeAssigned, TheVariable['type'])
-            TheBuilder.store(TheValueToBeAssigned['name'], TheVariable['name'])
-            if i > 0:
-                ReturnVariable = TheBuilder.load(TheVariable['name'])
-                Result = {'type': TheVariable['type'], 'name': ReturnVariable}
-            i += 2
-        return Result
-        # builder = self.builder_list[-1]
-        # length = ctx.getChildCount()
-        # IDname = ctx.getChild(0).getText()
-        # if not '[' in IDname and self.symbol_table.has_item(IDname) == False:
-        #     # raise SemanticError(ctx=ctx,msg="变量未定义！")
-        #     pass
-        #
-        # #待赋值结果
-        # val = self.visit(ctx.getChild(length - 2))
-        #
-        # #遍历全部左边变量赋值
-        # tmp = self.need_load
-        # self.need_load = False
-        # mvar = self.visit(ctx.getChild(0))
-        # self.need_load = tmp
-        #
-        # TheValueToBeAssigned = self.assignConvert(val, mvar['type'])
-        # builder.store(TheValueToBeAssigned['name'], mvar['name'])
-        # return {'type': mvar['type'], 'name': builder.load(mvar['name'])}
+        builder = self.builder_list[-1]
+        length = ctx.getChildCount()
+        id = ctx.getChild(0).getText()
+        if not '[' in id and self.symbol_table.has_item(id) == False:
+            # raise SemanticError(ctx=ctx,msg="变量未定义！")
+            pass
+        
+        #待赋值结果
+        val = self.visit(ctx.getChild(length - 2))
+        
+        #遍历全部左边变量赋值
+        tmp = self.need_load
+        self.need_load = False
+        mvar = self.visit(ctx.getChild(0))
+        self.need_load = tmp
+        builder.store(self.assignConvert(val, mvar['type'])['name'], mvar['name'])
+        return {'type': mvar['type'], 'name': builder.load(mvar['name'])}
 
     def visitReturnBlock(self, ctx: simpleCParser.ReturnBlockContext):
         '''
