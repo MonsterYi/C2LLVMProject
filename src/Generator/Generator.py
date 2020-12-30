@@ -165,13 +165,13 @@ class MyVisitor(simpleCVisitor):
         '''
         # 返回空
         if ctx.getChildCount() == 2:
-            RealReturnValue = self.builder_list[-1].ret_void()
+            ret = self.builder_list[-1].ret_void()
         else:
-            RealReturnValue = self.builder_list[-1].ret(self.visit(ctx.getChild(1))['name'])
+            ret = self.builder_list[-1].ret(self.visit(ctx.getChild(1))['name'])
         return {
             'type': void,
             'const': False,
-            'name': RealReturnValue
+            'name': ret
         }
 
     # 调用函数相关函数
@@ -206,7 +206,49 @@ class MyVisitor(simpleCVisitor):
             'name': builder.call(printf, arg_list)
         }
 
+<<<<<<< Updated upstream
     def visitMINT(self, ctx: simpleCParser.MINTContext):
+=======
+    def visitScanfFunc(self, ctx:simpleCParser.ScanfFuncContext):
+        '''
+        语法规则：scanfFunc : 'scanf' '(' mSTRING (','('&')?(mID|arrayItem|structMember))* ')';
+        描述：scanf函数
+        返回：函数返回值
+        '''        
+        if 'scanf' in self.Functions:
+            scanf = self.func_list['scanf']
+        else:
+            scanf_type = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg = True)
+            scanf = ir.Function(self.module, scanf_type, name="scanf")
+            self.func_list['scanf'] = scanf
+
+        builder = self.builder_list[-1]
+        zero = ir.Constant(int32, 0)
+        arg_list = [builder.gep(self.visit(ctx.getChild(2))['name'], [zero, zero], inbounds = True)]
+
+        length = ctx.getChildCount()
+        i = 4
+        while i < length - 1:
+            if ctx.getChild(i).getText() == '&':
+                #读取变量
+                PreviousNeedLoad = self.WhetherNeedLoad
+                self.WhetherNeedLoad = False
+                arg_list.append(self.visit(ctx.getChild(i + 1))['name'])
+                self.WhetherNeedLoad = PreviousNeedLoad
+                i += 3
+            else:
+                PreviousNeedLoad = self.WhetherNeedLoad
+                self.WhetherNeedLoad = True
+                arg_list.append(self.visit(ctx.getChild(i))['name'])
+                self.WhetherNeedLoad = PreviousNeedLoad
+                i += 2
+        return {
+            'type': int32,
+            'name': builder.call(scanf, arg_list)
+        }
+
+    def visitMINT(self, ctx:simpleCParser.MINTContext):
+>>>>>>> Stashed changes
         '''
         语法规则：mINT : INT;
         描述：int
