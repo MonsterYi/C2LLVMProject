@@ -579,10 +579,6 @@ class MyVisitor(simpleCVisitor):
         """
         expr : op = '!' expr
         """
-        # TODO
-        #RealReturnValue = self.visit(ctx.getChild(1))
-        #RealReturnValue = self.toBoolean(RealReturnValue, True)
-        # res 未返回
         return self.visitChildren(ctx)
 
     def visitOR(self, ctx: simpleCParser.ORContext):
