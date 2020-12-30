@@ -789,7 +789,7 @@ class MyVisitor(simpleCVisitor):
         """
         expr : Array_Item
         """
-        require_load = self.WhetherNeedLoad
+        require_load = self.need_load
         self.need_load = False
         res = self.visit(ctx.getChild(0))  # mID
         self.need_load = require_load
@@ -797,7 +797,7 @@ class MyVisitor(simpleCVisitor):
         if isinstance(res['type'], ir.types.ArrayType):
             builder = self.builder_list[-1]
 
-            require_load = self.WhetherNeedLoad
+            require_load = self.need_load
             self.need_load = True
             index = self.visit(ctx.getChild(2))  # subscript
             self.need_load = require_load
@@ -807,7 +807,7 @@ class MyVisitor(simpleCVisitor):
             }
             zero = ir.Constant(int32, 0)
             return_dict["name"] = builder.gep(res['name'], [zero, index['name']], inbounds=True)
-            if self.WhetherNeedLoad:
+            if self.need_load:
                 return_dict["name"] = builder.load(return_dict["name"])
             return return_dict
         else:  # error!
