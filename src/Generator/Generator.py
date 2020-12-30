@@ -206,9 +206,6 @@ class MyVisitor(simpleCVisitor):
             'name': builder.call(printf, arg_list)
         }
 
-<<<<<<< Updated upstream
-    def visitMINT(self, ctx: simpleCParser.MINTContext):
-=======
     def visitScanfFunc(self, ctx:simpleCParser.ScanfFuncContext):
         '''
         语法规则：scanfFunc : 'scanf' '(' mSTRING (','('&')?(mID|arrayItem|structMember))* ')';
@@ -248,7 +245,6 @@ class MyVisitor(simpleCVisitor):
         }
 
     def visitMINT(self, ctx:simpleCParser.MINTContext):
->>>>>>> Stashed changes
         '''
         语法规则：mINT : INT;
         描述：int
