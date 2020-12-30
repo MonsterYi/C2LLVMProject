@@ -449,8 +449,8 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(endfor_block)
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#for1Block.
-    def visitFor1Block(self, ctx: simpleCParser.For1BlockContext):
+    # Visit a parse tree produced by simpleCParser#forDefineBlock.
+    def visitForDefineBlock(self, ctx: simpleCParser.ForDefineBlockContext):
         if ctx.getChildCount() == 0:
             return
         cache = self.need_load
@@ -464,8 +464,8 @@ class MyVisitor(simpleCVisitor):
         if ctx.getChildCount() >= 4:
             self.visit(ctx.getChild(4))
 
-    # Visit a parse tree produced by simpleCParser#for3Block.
-    def visitFor3Block(self, ctx: simpleCParser.For3BlockContext):
+    # Visit a parse tree produced by simpleCParser#forIteratorBlock.
+    def visitForIteratorBlock(self, ctx: simpleCParser.ForIteratorBlockContext):
         if ctx.getChildCount() == 0:
             return
         cache = self.need_load
@@ -568,7 +568,7 @@ class MyVisitor(simpleCVisitor):
         """
         return self.visit(ctx.getChild(1))
 
-    def visitArrayitem(self, ctx: simpleCParser.ArrayitemContext):
+    def visitExpr_arrayitem(self, ctx:simpleCParser.Expr_arrayitemContext):
         """
         expr : Array_item
         """
@@ -712,7 +712,7 @@ class MyVisitor(simpleCVisitor):
         return return_dict
 
     # 变量和变量类型相关函数
-    def visitArrayItem(self, ctx: simpleCParser.ArrayItemContext):
+    def visitMyARRAYITEM(self, ctx:simpleCParser.MyARRAYITEMContext):
         """
         expr : Array_Item
         """
