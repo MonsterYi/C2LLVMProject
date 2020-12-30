@@ -249,23 +249,17 @@ class MyVisitor(simpleCVisitor):
             pass
 
         #待赋值结果 
-        ValueToBeAssigned = self.visit(ctx.getChild(length - 2))
+        val = self.visit(ctx.getChild(length - 2))
 
-        Result = {'type': ValueToBeAssigned['type'], 'name': ValueToBeAssigned['name']}
         #遍历全部左边变量赋值
-        for i in range(0, length - 2, 2):
-            tmp = self.need_load
-            self.need_load = False
-            TheVariable = self.visit(ctx.getChild(i))
-            self.need_load = tmp
+        tmp = self.need_load
+        self.need_load = False
+        mvar = self.visit(ctx.getChild(0))
+        self.need_load = tmp
 
-            TheValueToBeAssigned = ValueToBeAssigned
-            TheValueToBeAssigned = self.assignConvert(TheValueToBeAssigned, TheVariable['type'])
-            builder.store(TheValueToBeAssigned['name'], TheVariable['name'])
-            if i > 0:
-                ReturnVariable = builder.load(TheVariable['name'])
-                Result = {'type': TheVariable['type'], 'name': ReturnVariable}
-        return Result
+        TheValueToBeAssigned = self.assignConvert(val, mvar['type'])
+        builder.store(TheValueToBeAssigned['name'], mvar['name'])
+        return {'type': mvar['type'], 'name': builder.load(mvar['name'])}
 
     def visitReturnBlock(self, ctx: simpleCParser.ReturnBlockContext):
         '''
