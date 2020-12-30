@@ -64,7 +64,7 @@ class MyVisitor(simpleCVisitor):
 
         # 存储函数的变量
         for i in range(len(para_list)):
-            llvm_func.args[i].name = para_list[i]['IDname']
+            llvm_func.args[i].name = para_list[i]['name']
 
         #存储函数的block
         block = llvm_func.append_basic_block(name = func_name + '.entry')
@@ -88,7 +88,7 @@ class MyVisitor(simpleCVisitor):
         for i in range(len(para_list)):
             mvar = builder.alloca(para_list[i]['type'])
             builder.store(llvm_func.args[i], mvar)
-            self.symbol_table.insert_item(para_list[i]['IDname'], {'Type': para_list[i]['type'], 'Name': mvar})
+            self.symbol_table.insert_item(para_list[i]['name'], {'Type': para_list[i]['type'], 'Name': mvar})
 
         # 处理函数body
         self.visit(ctx.getChild(6))  # func body
@@ -134,7 +134,7 @@ class MyVisitor(simpleCVisitor):
         '''
         return {
             'type': self.visit(ctx.getChild(0)),
-            'IDname': ctx.getChild(1).getText()
+            'name': ctx.getChild(1).getText()
         }
 
     def visitFuncBody(self, ctx: simpleCParser.FuncBodyContext):
