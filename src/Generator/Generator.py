@@ -7,7 +7,6 @@ from llvmlite import ir
 from Generator.SymbolTable import SymbolTable
 
 single = ir.DoubleType()
-double = ir.DoubleType()
 bool = ir.IntType(1)
 int32 = ir.IntType(32)
 int8 = ir.IntType(8)
@@ -50,41 +49,30 @@ class MyVisitor(simpleCVisitor):
         '''
         functionHeaderDef: (myType | myVoid | struct) myID '(' functionParamsDef ')';
         '''
-        # 获取函数名 todo
+        # 获取函数名
         func_name = ctx.getChild(1).getText()  # func name
-
         # 获取参数列表
         para_list = self.visit(ctx.getChild(3))  # func params
-
         # 根据返回值，函数名称和参数生成llvm函数
         type_list = []
         for i in range(len(para_list)):
             type_list.append(para_list[i]['type'])
         llvm_type = ir.FunctionType(self.visit(ctx.getChild(0)), type_list)
         llvm_func = ir.Function(self.module, llvm_type, name = func_name)
-
         # 存储函数的变量
         for i in range(len(para_list)):
             llvm_func.args[i].name = para_list[i]['name']
-
         #存储函数的block
         block = llvm_func.append_basic_block(name = func_name + '.entry')
-
-        # 判断重定义，存储函数
-        if func_name in self.func_list:
-            # raise SemanticError(ctx=ctx,msg="函数重定义错误！")
-            pass
-        else:
-            self.func_list[func_name] = llvm_func
-
-        builder = ir.IRBuilder(block)
         self.block_list.append(block)
+        #将函数放入func_list
+        self.func_list[func_name] = llvm_func
+        #存储函数的builder
+        builder = ir.IRBuilder(block)
         self.builder_list.append(builder)
-
         # 进一层
         self.cur_func = func_name
         self.symbol_table.func_enter()
-
         # 存储函数的变量
         for i in range(len(para_list)):
             mvar = builder.alloca(para_list[i]['type'])
@@ -127,6 +115,12 @@ class MyVisitor(simpleCVisitor):
         '''
         functionBodyDef: '{' block '}';
         '''
+        self.visit(ctx.getChild(1))
+    
+    def visitBlock(self, ctx:simpleCParser.BlockContext):
+        '''
+        block: (sentence)+;
+        '''
         self.symbol_table.func_enter()
         for i in range(1, ctx.getChildCount() - 1):
             self.visit(ctx.getChild(i))
@@ -139,17 +133,7 @@ class MyVisitor(simpleCVisitor):
         self.builder_list.pop()
         self.symbol_table.func_quit()
         return
-    '''
-    def visitBody(self, ctx: simpleCParser.BodyContext):
-        语法规则：body : (block | func';')*;
-        描述：语句块/函数块
-        返回：无
-        for i in range(ctx.getChildCount()):
-            self.visit(ctx.getChild(i))
-            if self.block_list[-1].is_terminated:
-                break
-        return
-    '''
+
     #语句块相关函数
     def visitSentence(self, ctx:simpleCParser.SentenceContext):
         '''
@@ -223,14 +207,8 @@ class MyVisitor(simpleCVisitor):
         '''
         builder = self.builder_list[-1]
         length = ctx.getChildCount()
-        id = ctx.getChild(0).getText()
-        if not '[' in id and self.symbol_table.has_item(id) == False:
-            # raise SemanticError(ctx=ctx,msg="变量未定义！")
-            pass
-        
         #待赋值结果
         val = self.visit(ctx.getChild(length - 2))
-        
         #遍历全部左边变量赋值
         tmp = self.need_load
         self.need_load = False
@@ -356,9 +334,7 @@ class MyVisitor(simpleCVisitor):
         """
         myString: STRING;
         """
-        mstr = ctx.getText().replace('\\n', '\n')
-        mstr = mstr[1:-1]
-        mstr += '\0'
+        mstr = ctx.getText().replace('\\n', '\n')[1:-1] + '\0'
         length = len(bytearray(mstr, 'utf-8'))
         ret = ir.GlobalVariable(self.module, ir.ArrayType(int8, length), ".str%d" % self.constants)
         self.constants += 1
