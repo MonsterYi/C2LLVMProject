@@ -11,13 +11,13 @@ int precede(char a, char b) {
 		return 1;
 	}
 	if (a == '+' && b == '*') {
-		return -1;
+		return 2;
 	}
 	if (a == '+' && b == '/') {
-		return -1;
+		return 2;
 	}
 	if (a == '+' && b == '(') {
-		return -1;
+		return 2;
 	}
 	if (a == '+' && b == ')') {
 		return 1;
@@ -33,13 +33,13 @@ int precede(char a, char b) {
 		return 1;
 	}
 	if (a == '-' && b == '*') {
-		return -1;
+		return 2;
 	}
 	if (a == '-' && b == '/') {
-		return -1;
+		return 2;
 	}
 	if (a == '-' && b == '(') {
-		return -1;
+		return 2;
 	}
 	if (a == '-' && b == ')') {
 		return 1;
@@ -61,7 +61,7 @@ int precede(char a, char b) {
 		return 1;
 	}
 	if (a == '*' && b == '(') {
-		return -1;
+		return 2;
 	}
 	if (a == '*' && b == ')') {
 		return 1;
@@ -83,7 +83,7 @@ int precede(char a, char b) {
 		return 1;
 	}
 	if (a == '/' && b == '(') {
-		return -1;
+		return 2;
 	}
 	if (a == '/' && b == ')') {
 		return 1;
@@ -93,25 +93,25 @@ int precede(char a, char b) {
 	}
 
 	if (a == '(' && b == '+') {
-		return -1;
+		return 2;
 	}
 	if (a == '(' && b == '-') {
-		return -1;
+		return 2;
 	}
 	if (a == '(' && b == '*') {
-		return -1;
+		return 2;
 	}
 	if (a == '(' && b == '/') {
-		return -1;
+		return 2;
 	}
 	if (a == '(' && b == '(') {
-		return -1;
+		return 2;
 	}
 	if (a == '(' && b == ')') {
 		return 0;
 	}
 	if (a == '(' && b == '\n') {
-		return -2;
+		return 3;
 	}
 
 	if (a == ')' && b == '+') {
@@ -127,7 +127,7 @@ int precede(char a, char b) {
 		return 1;
 	}
 	if (a == ')' && b == '(') {
-		return -2;
+		return 3;
 	}
 	if (a == ')' && b == ')') {
 		return 1;
@@ -137,28 +137,28 @@ int precede(char a, char b) {
 	}
 
 	if (a == '\n' && b == '+') {
-		return -1;
+		return 2;
 	}
 	if (a == '\n' && b == '-') {
-		return -1;
+		return 2;
 	}
 	if (a == '\n' && b == '*') {
-		return -1;
+		return 2;
 	}
 	if (a == '\n' && b == '/') {
-		return -1;
+		return 2;
 	}
 	if (a == '\n' && b == '(') {
-		return -1;
+		return 2;
 	}
 	if (a == '\n' && b == ')') {
-		return -2;
+		return 3;
 	}
 	if (a == '\n' && b == '\n') {
 		return 0;
 	}
 
-	return -2;
+	return 3;
 }
 
 int isOp(char a) {
@@ -207,7 +207,7 @@ int main() {
 		}
 		else {
 			status = precede(OPTR[optrTop],c);
-			if (status == -1) {
+			if (status == 2) {
 				OPTR[optrTop + 1] = c;
 				optrTop = optrTop + 1;
 				scanf("%c",&c);
