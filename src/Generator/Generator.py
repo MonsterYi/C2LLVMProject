@@ -1,8 +1,8 @@
 from antlr4 import *
 
-from Parser.simpleCParser import simpleCParser
-from Parser.simpleCVisitor import simpleCVisitor
-from Parser.simpleCLexer import simpleCLexer
+from Parser2.simpleCParser import simpleCParser
+from Parser2.simpleCVisitor import simpleCVisitor
+from Parser2.simpleCLexer import simpleCLexer
 from llvmlite import ir
 from Generator.SymbolTable import SymbolTable
 
@@ -33,7 +33,7 @@ class MyVisitor(simpleCVisitor):
         self.need_load = True
         self.constants = 0
 
-    def visitProg(self, ctx: simpleCParser.ProgContext):
+    def visitProgram(self, ctx: simpleCParser.ProgramContext):
         '''
         语法规则：prog :(include)* (initialBlock|arrayInitBlock|structInitBlock|mStructDef|mFunction)*;
         描述：代码主文件
@@ -43,7 +43,7 @@ class MyVisitor(simpleCVisitor):
             self.visit(ctx.getChild(i))
 
     # 函数相关函数
-    def visitMFunction(self, ctx: simpleCParser.MFunctionContext):
+    def visitFunctionDef(self, ctx: simpleCParser.FunctionDefContext):
 
         '''
         语法规则：mFunction : (mType|mVoid|mStruct) mID '(' params ')' '{' funcBody '}';
@@ -101,7 +101,7 @@ class MyVisitor(simpleCVisitor):
         self.symbol_table.func_quit()
         return
 
-    def visitMType(self, ctx: simpleCParser.MTypeContext):
+    def visitMyType(self, ctx: simpleCParser.MyTypeContext):
         '''
         语法规则：mType : 'int'| 'float'| 'char';
         描述：类型主函数
@@ -117,7 +117,7 @@ class MyVisitor(simpleCVisitor):
             return single
         return void
 
-    def visitParams(self, ctx: simpleCParser.ParamsContext):
+    def visitFunctionParamsDef(self, ctx: simpleCParser.FunctionParamsDefContext):
         '''
         语法规则：params : param (','param)* |;
         描述：函数的参数列表
@@ -129,7 +129,7 @@ class MyVisitor(simpleCVisitor):
             para_list.append(self.visit(ctx.getChild(i)))
         return para_list
 
-    def visitParam(self, ctx:simpleCParser.ParamContext):
+    def visitFunctionParamDef(self, ctx:simpleCParser.FunctionParamDefContext):
         '''
         语法规则：param : mType mID;
         描述：返回函数参数
@@ -140,7 +140,7 @@ class MyVisitor(simpleCVisitor):
             'name': ctx.getChild(1).getText()
         }
 
-    def visitFuncBody(self, ctx: simpleCParser.FuncBodyContext):
+    def visitFunctionBodyDef(self, ctx: simpleCParser.FunctionBodyDefContext):
         '''
         语法规则：funcBody : body returnBlock;
         描述：函数体
@@ -175,7 +175,7 @@ class MyVisitor(simpleCVisitor):
             self.visit(ctx.getChild(i))
         return
 
-    def visitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
+    def visitBaseDefineSentence(self, ctx:simpleCParser.BaseDefineSentenceContext):
         '''
         语法规则：initialBlock : (mType) mID ('=' expr)? (',' mID ('=' expr)?)* ';';
         描述：初始化语句块
@@ -208,7 +208,7 @@ class MyVisitor(simpleCVisitor):
                 i += 4
         return
 
-    def visitArrayInitBlock(self, ctx:simpleCParser.ArrayInitBlockContext):
+    def visitArrayDefineSentence(self, ctx:simpleCParser.ArrayDefineSentenceContext):
         '''
         语法规则：arrayInitBlock : mType mID '[' mINT ']'';'; 
         描述：数组初始化块
@@ -226,7 +226,7 @@ class MyVisitor(simpleCVisitor):
         self.symbol_table.insert_item(id, {'Type': ir.ArrayType(Type, length), 'Name': mvar})
         return
 
-    def visitAssignBlock(self, ctx:simpleCParser.AssignBlockContext):
+    def visitAssignSentence(self, ctx:simpleCParser.AssignSentenceContext):
         '''
         语法规则：assignBlock : ((arrayItem|mID|structMember) '=')+  expr ';';
         描述：赋值语句块
@@ -250,7 +250,7 @@ class MyVisitor(simpleCVisitor):
         builder.store(self.assignConvert(val, mvar['type'])['name'], mvar['name'])
         return {'type': mvar['type'], 'name': builder.load(mvar['name'])}
 
-    def visitReturnBlock(self, ctx: simpleCParser.ReturnBlockContext):
+    def visitReturnSentence(self, ctx: simpleCParser.ReturnSentenceContext):
         '''
         语法规则：returnBlock : 'return' (mINT|mID)? ';';
         描述：return语句块
@@ -268,7 +268,7 @@ class MyVisitor(simpleCVisitor):
         }
 
     # 调用函数相关函数
-    def visitFunc(self, ctx: simpleCParser.FuncContext):
+    def visitFunction(self, ctx: simpleCParser.FunctionContext):
         '''
         语法规则：func : (strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc);
         描述：函数
@@ -276,7 +276,7 @@ class MyVisitor(simpleCVisitor):
         '''
         return self.visit(ctx.getChild(0))
 
-    def visitPrintfFunc(self, ctx: simpleCParser.PrintfFuncContext):
+    def visitPrintFunc(self, ctx: simpleCParser.PrintFuncContext):
         '''
         语法规则：printfFunc : 'printf' '(' (mSTRING | mID) (','expr)* ')';
         描述：printf函数
@@ -352,7 +352,7 @@ class MyVisitor(simpleCVisitor):
                 'name': builder.call(func, para_list)
             }
 
-    def visitMINT(self, ctx:simpleCParser.MINTContext):
+    def visitMyInt(self, ctx:simpleCParser.MyIntContext):
         '''
         语法规则：mINT : INT;
         描述：int
@@ -364,7 +364,7 @@ class MyVisitor(simpleCVisitor):
             'name': ir.Constant(int32, int(ctx.getText()))
         }
 
-    def visitMSTRING(self, ctx: simpleCParser.MSTRINGContext):
+    def visitMyString(self, ctx: simpleCParser.MyStringContext):
         """
         string : string;
         """
@@ -384,18 +384,18 @@ class MyVisitor(simpleCVisitor):
 
     # 每人在自己线下面写
     ####### MHY #############
-    # Visit a parse tree produced by simpleCParser#condition.
     def prepareBlock(self, block):
         self.block_list.pop()
         self.block_list.append(block)
         self.builder_list.pop()
         self.builder_list.append(ir.IRBuilder(block))
 
+    # Visit a parse tree produced by simpleCParser#condition.
     def visitCondition(self, ctx: simpleCParser.ConditionContext):
         return self.toBoolean(self.visit(ctx.getChild(0)), False)
 
-    # Visit a parse tree produced by simpleCParser#ifBlocks.
-    def visitIfBlocks(self, ctx: simpleCParser.IfBlocksContext):
+    # Visit a parse tree produced by simpleCParser#ifSentenceBlock.
+    def visitIfSentenceBlock(self, ctx: simpleCParser.IfSentenceBlockContext):
         # If 逻辑代码块的入口，包括If Elif Else代码块
         cur_builder = self.builder_list[-1]
         if_block = cur_builder.append_basic_block()
@@ -415,8 +415,8 @@ class MyVisitor(simpleCVisitor):
         self.cur_endif_block = cache
         self.prepareBlock(endif_block)
 
-    # Visit a parse tree produced by simpleCParser#ifBlock.
-    def visitIfBlock(self, ctx: simpleCParser.IfBlockContext):
+    # Visit a parse tree produced by simpleCParser#ifSentence.
+    def visitIfSentence(self, ctx: simpleCParser.IfSentenceContext):
         self.symbol_table.func_enter()
         cur_builder = self.builder_list[-1]
         true_block = cur_builder.append_basic_block()
@@ -431,8 +431,8 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(false_block)
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#elifBlock.
-    def visitElifBlock(self, ctx: simpleCParser.ElifBlockContext):
+    # Visit a parse tree produced by simpleCParser#elifSentence.
+    def visitElifSentence(self, ctx: simpleCParser.ElifSentenceContext):
         self.symbol_table.func_enter()
         cur_builder = self.builder_list[-1]
         true_block = cur_builder.append_basic_block()
@@ -447,14 +447,14 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(false_block)
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#elseBlock.
-    def visitElseBlock(self, ctx: simpleCParser.ElseBlockContext):
+    # Visit a parse tree produced by simpleCParser#elseSentence.
+    def visitElseSentence(self, ctx: simpleCParser.ElseSentenceContext):
         self.symbol_table.func_enter()
         self.visit(ctx.getChild(2))
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#whileBlock.
-    def visitWhileBlock(self, ctx: simpleCParser.WhileBlockContext):
+    # Visit a parse tree produced by simpleCParser#whileSentence.
+    def visitWhileSentence(self, ctx: simpleCParser.WhileSentenceContext):
         self.symbol_table.func_enter()
         cur_builder = self.builder_list[-1]
         cond_block = cur_builder.append_basic_block()
@@ -474,8 +474,8 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(endwhile_block)
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#forBlock.
-    def visitForBlock(self, ctx: simpleCParser.ForBlockContext):
+    # Visit a parse tree produced by simpleCParser#forSentence.
+    def visitForSentence(self, ctx: simpleCParser.ForSentenceContext):
         self.symbol_table.func_enter()
         self.visit(ctx.getChild(2))
         cur_builder = self.builder_list[-1]
@@ -500,8 +500,8 @@ class MyVisitor(simpleCVisitor):
         self.prepareBlock(endfor_block)
         self.symbol_table.func_quit()
 
-    # Visit a parse tree produced by simpleCParser#for1Block.
-    def visitFor1Block(self, ctx: simpleCParser.For1BlockContext):
+    # Visit a parse tree produced by simpleCParser#forDefineSentence.
+    def visitForDefineSentence(self, ctx: simpleCParser.ForDefineSentenceContext):
         if ctx.getChildCount() == 0:
             return
         cache = self.need_load
@@ -515,8 +515,8 @@ class MyVisitor(simpleCVisitor):
         if ctx.getChildCount() >= 4:
             self.visit(ctx.getChild(4))
 
-    # Visit a parse tree produced by simpleCParser#for3Block.
-    def visitFor3Block(self, ctx: simpleCParser.For3BlockContext):
+    # Visit a parse tree produced by simpleCParser#forIteratorSentence.
+    def visitForIteratorSentence(self, ctx: simpleCParser.ForIteratorSentenceContext):
         if ctx.getChildCount() == 0:
             return
         cache = self.need_load
@@ -579,10 +579,6 @@ class MyVisitor(simpleCVisitor):
         """
         expr : op = '!' expr
         """
-        # TODO
-        #RealReturnValue = self.visit(ctx.getChild(1))
-        #RealReturnValue = self.toBoolean(RealReturnValue, True)
-        # res 未返回
         return self.visitChildren(ctx)
 
     def visitOR(self, ctx: simpleCParser.ORContext):
