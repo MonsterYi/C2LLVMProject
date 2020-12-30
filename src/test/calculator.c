@@ -22,7 +22,7 @@ int precede(char a, char b) {
 	if (a == '+' && b == ')') {
 		return 1;
 	}
-	if (a == '+' && b == '\n') {
+	if (a == '+' && b == '$') {
 		return 1;
 	}
 
@@ -44,7 +44,7 @@ int precede(char a, char b) {
 	if (a == '-' && b == ')') {
 		return 1;
 	}
-	if (a == '-' && b == '\n') {
+	if (a == '-' && b == '$') {
 		return 1;
 	}
 
@@ -66,7 +66,7 @@ int precede(char a, char b) {
 	if (a == '*' && b == ')') {
 		return 1;
 	}
-	if (a == '*' && b == '\n') {
+	if (a == '*' && b == '$') {
 		return 1;
 	}
 
@@ -88,7 +88,7 @@ int precede(char a, char b) {
 	if (a == '/' && b == ')') {
 		return 1;
 	}
-	if (a == '/' && b == '\n') {
+	if (a == '/' && b == '$') {
 		return 1;
 	}
 
@@ -110,7 +110,7 @@ int precede(char a, char b) {
 	if (a == '(' && b == ')') {
 		return 0;
 	}
-	if (a == '(' && b == '\n') {
+	if (a == '(' && b == '$') {
 		return 3;
 	}
 
@@ -132,29 +132,29 @@ int precede(char a, char b) {
 	if (a == ')' && b == ')') {
 		return 1;
 	}
-	if (a == ')' && b == '\n') {
+	if (a == ')' && b == '$') {
 		return 1;
 	}
 
-	if (a == '\n' && b == '+') {
+	if (a == '$' && b == '+') {
 		return 2;
 	}
-	if (a == '\n' && b == '-') {
+	if (a == '$' && b == '-') {
 		return 2;
 	}
-	if (a == '\n' && b == '*') {
+	if (a == '$' && b == '*') {
 		return 2;
 	}
-	if (a == '\n' && b == '/') {
+	if (a == '$' && b == '/') {
 		return 2;
 	}
-	if (a == '\n' && b == '(') {
+	if (a == '$' && b == '(') {
 		return 2;
 	}
-	if (a == '\n' && b == ')') {
+	if (a == '$' && b == ')') {
 		return 3;
 	}
-	if (a == '\n' && b == '\n') {
+	if (a == '$' && b == '$') {
 		return 0;
 	}
 
@@ -162,7 +162,7 @@ int precede(char a, char b) {
 }
 
 int isOp(char a) {
-	if (a == '+' || a == '-' || a == '/' || a == '*' || a == '(' || a == ')' || a == '\n') {
+	if (a == '+' || a == '-' || a == '/' || a == '*' || a == '(' || a == ')' || a == '$') {
 		return 1;
 	}
 	return 0;
@@ -188,14 +188,14 @@ double calc(double a, char op, double b) {
 int main() {
 	printf("Please input expression:");
 	char c;
-	char end = '\n';
+	char end = '$';
 	int status = 0;
 	char theta;
 	double a, b = 0.0;
 	double ans = 0.0;
 	int optrTop = -1;
 	int opndTop = -1;
-	OPTR[optrTop+1] = '\n';
+	OPTR[optrTop+1] = '$';
 	optrTop = optrTop + 1;
 	scanf("%c",&c);
 	while (c != end || OPTR[optrTop] != end) {
