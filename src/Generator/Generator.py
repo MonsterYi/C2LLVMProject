@@ -475,7 +475,7 @@ class MyVisitor(simpleCVisitor):
         body_block = cur_builder.append_basic_block()
         endfor_block = cur_builder.append_basic_block()
 
-        #visit condition
+        # visit condition
         cur_builder.branch(cond_block)
         self.prepareBlock(cond_block)
         cond = self.visit(ctx.getChild(4))
@@ -494,17 +494,17 @@ class MyVisitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#for1Block.
     def visitFor1Block(self, ctx: simpleCParser.For1BlockContext):
-        if ctx.getChildCount()==0:
+        if ctx.getChildCount() == 0:
             return
-        cache=self.need_load
-        self.need_load=False
-        ID=self.visit(ctx.getChild(0))
-        expr=self.visit(ctx.getChild(2))
-        expr=self.assignConvert(expr['name'],ID['name'])
-        self.builder_list[-1].store(expr['name'],ID['name'])
-        self.need_load=cache
+        cache = self.need_load
+        self.need_load = False
+        ID = self.visit(ctx.getChild(0))
+        expr = self.visit(ctx.getChild(2))
+        expr = self.assignConvert(expr['name'], ID['name'])
+        self.builder_list[-1].store(expr['name'], ID['name'])
+        self.need_load = cache
         # handle nested assignments
-        if ctx.getChildCount()>=4:
+        if ctx.getChildCount() >= 4:
             self.visit(ctx.getChild(4))
 
     # Visit a parse tree produced by simpleCParser#for3Block.
@@ -524,17 +524,29 @@ class MyVisitor(simpleCVisitor):
 
     def assignConvert(self, src, dest_type):
         if src['type'] == dest_type:
-            return src
-        if self.isInteger(src['type']) and self.isInteger(dest_type):
-            if src['type'] == bool:
-                src = self.convertIIZ(src, dest_type)
-            else:
-                src = self.convertIIS(src, dest_type)
+            pass
+        elif src['type'] == bool and self.isInteger(dest_type):
+            src = self.bool2int(src, dest_type)
+        elif self.isInteger(src['type']) and self.isInteger(dest_type):
+            src = self.int2int(src, dest_type)
+        elif src['type'] == single and self.isInteger(dest_type):
+            src = self.single2int(src, dest_type)
         elif self.isInteger(src['type']) and dest_type == single:
-            src = self.convertIDS(src)
-        elif self.isInteger(dest_type) and src['type'] == single:
-            src = self.convertDIS(src)
+            src = self.int2single(src, dest_type)
         return src
+
+    def bool2int(self, src, dest_type):
+        return {'type': dest_type, 'const': False, 'name': self.builder_list[-1].zext(src['name'], dest_type)}
+
+    def int2int(self, src, dest_type):
+        return {'type': dest_type, 'const': False, 'name': self.builder_list[-1].sext(src['name'], dest_type)}
+
+    def single2int(self, src, dest_type):
+        return {'type': dest_type, 'const': False, 'name': self.builder_list[-1].fptosi(src['name'], dest_type)}
+
+    def int2single(self, src, dest_type):
+        return {'type': dest_type, 'const': False, 'name': self.builder_list[-1].sitofp(src['name'], dest_type)}
+
 
     ####### HYL #############
     # 类型转换至布尔型
@@ -623,18 +635,18 @@ class MyVisitor(simpleCVisitor):
         if self.isInteger(index1['type']) and self.isInteger(index2['type']):
             if index1['type'].width < index2['type'].width:
                 if index1['type'].width == 1:
-                    index1 = self.convertIIZ(index1, index2['type'])
+                    index1 = self.bool2int(index1, index2['type'])
                 else:
-                    index1 = self.convertIIS(index1, index2['type'])
+                    index1 = self.int2int(index1, index2['type'])
             else:
                 if index2['type'].width == 1:
-                    index2 = self.convertIIZ(index2, index1['type'])
+                    index2 = self.bool2int(index2, index1['type'])
                 else:
-                    index2 = self.convertIIS(index2, index1['type'])
+                    index2 = self.int2int(index2, index1['type'])
         elif self.isInteger(index1['type']) and index2['type'] == single:
-            index1 = convertIDS(index1, index2['type'])
+            index1 = self.int2single(index1, index2['type'])
         elif self.isInteger(index2['type']) and index1['type'] == single:
-            index2 = convertIDS(index2, index1['type'])
+            index2 = self.int2single(index2, index1['type'])
         else:
             # TODO
             pass
