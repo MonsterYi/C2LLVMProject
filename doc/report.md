@@ -80,11 +80,13 @@ test
 
 ​	词法与语法分析的实现借助了 `antlr4` 工具，同时使用了 `antlr4-python3-runtime` 工具使得生成的词法语法分析代码为 `Python` 代码。
 
-​	词法分析的规则定义在 `SimpleCItemLexer.g4` 中，其中定义了库名 `LIB`、变量名 `ID`，`int` 和 `double`，`char`，`string` 类型的立即数 `INT`，`DOUBLE`，`CHAR`，`STRING`。`OPERATOR` 中定义了运算符 （`+-*/%!`） 与
+​	词法分析的规则定义在 `SimpleCItemLexer.g4` 中，其中定义了库名 `LIB`、变量名 `ID`，`INT` 和 `DOUBLE`，`CHAR`，`STRING` 类型的立即数 `INT`，`DOUBLE`，`CHAR`，`STRING`。`OPERATOR` 中定义了运算符 （`+-*/%!`） 与
 
 `== != < > <= >=`，在 `CONJUNCTION` 中定义了逻辑判断的连接符 `&&` 和 `||`。定义了行注释、多行注释以及空格缩进符换行符等字符的跳过操作。
 
-​	语法分析的规则定义在了 `SimpleC.g4` 中，入口开始符号是 `program`，产生式为 `program->(include)* (defineSentence | structDef | functionDef)*`，在 `include` 中定义了调库操作， `defineSentence` 是对各种变量的声明，`structDef` 是对结构体的定义，`functionDef` 则是对函数的定义。`functionDef` 中定义了函数，它包含对函数头 `functionHeaderDef` 和 函数体 `functionBodyDef` 的定义，前者包含了对返回值类型，
+​	语法分析的规则定义在了 `SimpleC.g4` 中，入口开始符号是 `program`，产生式为 `program->(include)* (defineBlock| myFunction)*`，在 `include` 中定义了调库操作， `defineBlock` 是对各种变量的声明，`myFunction` 则是对函数的定义。`block` 中定义了各种语句，包含声明、赋值、if、while、for、return 语句。
+
+`expr` 中则是对表达式的定义。余下的细节部分可以参考具体代码 `simpleC.g4` 和 `simpleCItemLexer.g4`。
 
 <h4>4.2 函数定义与调用的实现</h4>
 
