@@ -410,7 +410,7 @@ class MyVisitor(simpleCVisitor):
         self.builder_list.append(ir.IRBuilder(block))
 
     def visitCondition(self, ctx: simpleCParser.ConditionContext):
-        return self.toBoolean(self.visitChildren(ctx), False)
+        return self.toBoolean(self.visitChildren(ctx.getChild(0)), False)
 
     # Visit a parse tree produced by simpleCParser#ifBlocks.
     def visitIfBlocks(self, ctx: simpleCParser.IfBlocksContext):
@@ -525,10 +525,10 @@ class MyVisitor(simpleCVisitor):
         cache = self.need_load
         self.need_load = False
         ID = self.visit(ctx.getChild(0))
+        self.need_load = cache
         expr = self.visit(ctx.getChild(2))
         expr = self.assignConvert(expr, ID['name'])
         self.builder_list[-1].store(expr['name'], ID['name'])
-        self.need_load = cache
         # handle nested assignments
         if ctx.getChildCount() >= 4:
             self.visit(ctx.getChild(4))
@@ -540,10 +540,10 @@ class MyVisitor(simpleCVisitor):
         cache = self.need_load
         self.need_load = False
         var = self.visit(ctx.getChild(0))
+        self.need_load = cache
         expr = self.visit(ctx.getChild(2))
         expr = self.assignConvert(expr, var['name'])
         self.builder_list[-1].store(expr['name'], var['name'])
-        self.need_load = cache
         # handle nested assignments
         if ctx.getChildCount() >= 4:
             self.visit(ctx.getChild(4))
