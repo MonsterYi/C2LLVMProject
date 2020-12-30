@@ -509,6 +509,11 @@ class MyVisitor(simpleCVisitor):
     ####### HYL #############
     # 类型转换至布尔型
     def toBoolean(self, var, not_equal=True):
+        """
+        :param var:
+        :param not_equal:
+        :return:
+        """
         builder = self.builder_list[-1]
         operator = "==" if not_equal else "!="
         return_dict = {
@@ -532,28 +537,26 @@ class MyVisitor(simpleCVisitor):
 
     def visitExpr_or(self, ctx:simpleCParser.Expr_orContext):
         """
-        expr : expr '||' expr
+        expr : expr1 '||' expr2
         """
         expr1 = self.toBoolean(self.visit(ctx.getChild(0)), False)
         expr2 = self.toBoolean(self.visit(ctx.getChild(2)), False)
-        builder = self.builder_list[-1]
         return {
             'type': expr1['type'],
             'const': False,
-            'name': builder.or_(expr1['name'], expr2['name'])
+            'name': self.builder_list[-1].or_(expr1['name'], expr2['name'])
         }
 
     def visitExpr_and(self, ctx:simpleCParser.Expr_andContext):
         """
-        expr : expr '&&' expr
+        expr : expr1 '&&' expr2
         """
         expr1 = self.toBoolean(self.visit(ctx.getChild(0)), False)
         expr2 = self.toBoolean(self.visit(ctx.getChild(2)), False)
-        builder = self.builder_list[-1]
         return {
             'type': expr1['type'],
             'const': False,
-            'name': builder.and_(expr1['name'], expr2['name'])
+            'name': self.builder_list[-1].and_(expr1['name'], expr2['name'])
         }
 
     def visitIdentifier(self, ctx:simpleCParser.IdentifierContext):
@@ -602,9 +605,8 @@ class MyVisitor(simpleCVisitor):
         elif self.is_int(expr2['type']) and expr1['type'] == single:
             expr2 = self.int2single(expr2, expr1['type'])
         else:
-            # TODO
-            pass
-            # raise Error(ctx=ctx, msg="类型不匹配")
+            print("类型不匹配:\n", expr1, expr2)
+            exit(0)
         return expr1, expr2
 
     def get_return_dict(self, ctx):
@@ -617,7 +619,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitExpr_mul(self, ctx:simpleCParser.Expr_mulContext):
         """
-        expr : expr op=('*' | '/' | '%') expr
+        expr : expr1 op=('*' | '/' | '%') expr2
         """
         builder = self.builder_list[-1]
         expr1, expr2, return_dict = self.get_return_dict(ctx)
@@ -632,7 +634,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitExpr_add(self, ctx:simpleCParser.Expr_addContext):
         """
-        expr op=('+' | '-') expr
+            expr1 op=('+' | '-') expr2
         """
         builder = self.builder_list[-1]
         expr1, expr2, return_dict = self.get_return_dict(ctx)
@@ -648,10 +650,10 @@ class MyVisitor(simpleCVisitor):
         expr : (op='-')? single
         """
         if ctx.getChild(0).getText() == '-':
-            mid_item = self.visit(ctx.getChild(1))
+            double_item = self.visit(ctx.getChild(1))
             return {
-                'type': mid_item['type'],
-                'name': self.builder_list[-1].neg(mid_item['name'])
+                'type': double_item['type'],
+                'name': self.builder_list[-1].neg(double_item['name'])
             }
         return self.visit(ctx.getChild(0))
 
@@ -672,10 +674,10 @@ class MyVisitor(simpleCVisitor):
         (op='-')? int
         """
         if ctx.getChild(0).getText() == '-':
-            mid_item= self.visit(ctx.getChild(1))
+            int_item = self.visit(ctx.getChild(1))
             return {
-                'type': mid_item['type'],
-                'name': self.builder_list[-1].neg(mid_item['name'])
+                'type': int_item['type'],
+                'name': self.builder_list[-1].neg(int_item['name'])
             }
         return self.visit(ctx.getChild(0))
 
@@ -687,7 +689,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitMyARRAY(self, ctx:simpleCParser.MyARRAYContext):
         """
-        Array : identifier '[' int ']';
+        Array : IDname '[' int ']';
         """
         return {
             'IDname': ctx.getChild(0).getText(),
@@ -696,7 +698,7 @@ class MyVisitor(simpleCVisitor):
 
     def visitExpr_judge(self, ctx:simpleCParser.Expr_judgeContext):
         """
-        expr : expr op=('==' | '!=' | '<' | '<=' | '>' | '>=') expr
+        expr : expr1 oprator=('==' | '!=' | '<' | '<=' | '>' | '>=') expr2
         """
         builder = self.builder_list[-1]
         expr1, expr2 = self.exprConvert(self.visit(ctx.getChild(0)), self.visit(ctx.getChild(2)))
@@ -737,8 +739,8 @@ class MyVisitor(simpleCVisitor):
                 return_dict["name"] = builder.load(return_dict["name"])
             return return_dict
         else:  # error!
-            pass  # TODO
-            # raise Error(ctx=ctx, msg="类型错误")
+            print("类型错误:" + ctx.getText())
+            exit(0)
 
     def visitArgument(self, ctx: simpleCParser.ArgumentContext):
         """
