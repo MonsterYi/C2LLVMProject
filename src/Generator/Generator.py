@@ -329,7 +329,7 @@ class MyVisitor(simpleCVisitor):
         描述：scanf函数
         返回：函数返回值
         '''        
-        if 'scanf' in self.Functions:
+        if 'scanf' in self.func_list:
             scanf = self.func_list['scanf']
         else:
             scanf_type = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg = True)
@@ -737,14 +737,14 @@ class MyVisitor(simpleCVisitor):
         identifier : ID;
         """
         identifier = ctx.getText()
-        if not self.SymbolTable.JudgeExist(identifier):
+        if not self.symbol_table.JudgeExist(identifier):
             return {
                 'type': int32,
                 'const': False,
                 'name': ir.Constant(int32, None)
             }
         builder = self.builder_list[-1]
-        item = self.SymbolTable.GetItem(identifier)
+        item = self.symbol_table.GetItem(identifier)
         if item is not None:
             if self.need_load:
                 return {
