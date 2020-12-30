@@ -575,13 +575,13 @@ class MyVisitor(simpleCVisitor):
             return return_dict
         return manipulate_index
 
-    def visitNeg(self, ctx: simpleCParser.NegContext):
+    def visitExpr_neg(self, ctx: simpleCParser.NegContext):
         """
         expr : op = '!' expr
         """
         return self.visitChildren(ctx)
 
-    def visitOR(self, ctx: simpleCParser.ORContext):
+    def visitExpr_or(self, ctx: simpleCParser.ORContext):
         """
         expr : expr '||' expr
         """
@@ -594,7 +594,7 @@ class MyVisitor(simpleCVisitor):
             'name': builder.or_(index1['name'], index2['name'])
         }
 
-    def visitAND(self, ctx: simpleCParser.ANDContext):
+    def visitExpr_and(self, ctx: simpleCParser.ANDContext):
         """
         expr : expr '&&' expr
         """
@@ -607,25 +607,25 @@ class MyVisitor(simpleCVisitor):
             'name': builder.and_(index1['name'], index2['name'])
         }
 
-    def visitIdentifier(self, ctx: simpleCParser.IdentifierContext):
+    def visitExpr_identifier(self, ctx: simpleCParser.IdentifierContext):
         """
         expr : identifier
         """
         return self.visit(ctx.getChild(0))
 
-    def visitParens(self, ctx: simpleCParser.ParensContext):
+    def visitExpr_parens(self, ctx: simpleCParser.ParensContext):
         """
         expr : '(' expr ')'
         """
         return self.visit(ctx.getChild(1))
 
-    def visitArrayitem(self, ctx: simpleCParser.ArrayitemContext):
+    def visitExpr_arrayitem(self, ctx: simpleCParser.ArrayitemContext):
         """
         expr : Array_item
         """
         return self.visit(ctx.getChild(0))
 
-    def visitString(self, ctx: simpleCParser.StringContext):
+    def visitExpr_string(self, ctx: simpleCParser.StringContext):
         """
         expr : string
         """
@@ -666,7 +666,7 @@ class MyVisitor(simpleCVisitor):
         }
         return index1, index2, return_dict
 
-    def visitMulDiv(self, ctx: simpleCParser.MulDivContext):
+    def visitExpr_mul(self, ctx: simpleCParser.MulDivContext):
         """
         expr : expr op=('*' | '/' | '%') expr
         """
@@ -681,7 +681,7 @@ class MyVisitor(simpleCVisitor):
             return_dict["name"] = builder.srem(index1['name'], index2['name'])
         return return_dict
 
-    def visitAddSub(self, ctx: simpleCParser.AddSubContext):
+    def visitExpr_add(self, ctx: simpleCParser.AddSubContext):
         """
         expr op=('+' | '-') expr
         """
@@ -694,7 +694,7 @@ class MyVisitor(simpleCVisitor):
             return_dict["name"] = builder.sub(index1['name'], index2['name'])
         return return_dict
 
-    def visitDouble(self, ctx: simpleCParser.DoubleContext):
+    def visitExpr_double(self, ctx: simpleCParser.DoubleContext):
         """
         expr : (op='-')? single
         """
@@ -707,19 +707,19 @@ class MyVisitor(simpleCVisitor):
             }
         return self.visit(ctx.getChild(0))
 
-    def visitFunction(self, ctx: simpleCParser.FunctionContext):
+    def visitExpr_function(self, ctx: simpleCParser.FunctionContext):
         """
         expr : func
         """
         return self.visit(ctx.getChild(0))
 
-    def visitChar(self, ctx: simpleCParser.CharContext):
+    def visitExpr_char(self, ctx: simpleCParser.CharContext):
         """
         expr : char
         """
         return self.visit(ctx.getChild(0))
 
-    def visitInt(self, ctx: simpleCParser.IntContext):
+    def visitExpr_int(self, ctx: simpleCParser.IntContext):
         """
         (op='-')? int
         """
@@ -732,13 +732,13 @@ class MyVisitor(simpleCVisitor):
             }
         return self.visit(ctx.getChild(0))
 
-    def visitMVoid(self, ctx: simpleCParser.MVoidContext):
+    def visitMyvoid(self, ctx: simpleCParser.MVoidContext):
         """
         Void : 'void';
         """
         return void
 
-    def visitMArray(self, ctx: simpleCParser.MArrayContext):
+    def visitArray(self, ctx: simpleCParser.MArrayContext):
         """
         Array : identifier '[' int ']';
         """
@@ -747,7 +747,7 @@ class MyVisitor(simpleCVisitor):
             'length': int(ctx.getChild(2).getText())
         }
 
-    def visitJudge(self, ctx: simpleCParser.JudgeContext):
+    def visitExpr_judge(self, ctx: simpleCParser.JudgeContext):
         """
         expr : expr op=('==' | '!=' | '<' | '<=' | '>' | '>=') expr
         """
@@ -800,7 +800,7 @@ class MyVisitor(simpleCVisitor):
         """
         return self.visit(ctx.getChild(0))
 
-    def visitMID(self, ctx: simpleCParser.MIDContext):
+    def visitMyID(self, ctx: simpleCParser.MIDContext):
         """
         identifier : ID;
         """
@@ -833,7 +833,7 @@ class MyVisitor(simpleCVisitor):
                 'name': ir.Constant(void, None)
             }
 
-    def visitMDOUBLE(self, ctx: simpleCParser.MDOUBLEContext):
+    def visitMyDouble(self, ctx: simpleCParser.MDOUBLEContext):
         """
         double : double;
         """
@@ -843,7 +843,7 @@ class MyVisitor(simpleCVisitor):
             'name': ir.Constant(single, float(ctx.getText()))
         }
 
-    def visitMCHAR(self, ctx: simpleCParser.MCHARContext):
+    def visitMyChar(self, ctx: simpleCParser.MCHARContext):
         """
         char : char;
         """
